@@ -30,12 +30,13 @@
      :headers {"Content-Type" "text/plain"}
      :body (pr-str ["Hello" :from 'Puggle])})
   (POST "/slack-announcement" {{:keys [text user_name]} :params}
-    (http/post "https://pugglepay.slack.com/services/hooks/incoming-webhook"
-               {:query-params {:token (env :slack-general-token "")}
-                :form-params {:payload (json/generate-string {:text text
-                                                              :username user_name
-                                                              :icon_emoji ":clojure:"})}})
-    {:status 200 :body ""})
+    (do
+      (http/post "https://pugglepay.slack.com/services/hooks/incoming-webhook"
+                 {:query-params {:token (env :slack-general-token "")}
+                  :form-params {:payload (json/generate-string {:text text
+                                                                :username user_name
+                                                                :icon_emoji ":clojure:"})}})
+      {:status 200 :body ""}))
   (ANY "*" []
     (route/not-found (slurp (io/resource "404.html")))))
 
