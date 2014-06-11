@@ -9,6 +9,8 @@
             [ring.adapter.jetty :as jetty]
             [ring.middleware.basic-authentication :as basic]
             [cemerick.drawbridge :as drawbridge]
+            [org.httpkit.client :as http]
+            [cheshire.core :as json]
             [environ.core :refer [env]]))
 
 (defn- authenticated? [user pass]
@@ -22,13 +24,20 @@
 
 (defroutes app
   (ANY "/repl" {:as req}
-       (drawbridge req))
+    (drawbridge req))
   (GET "/" []
-       {:status 200
-        :headers {"Content-Type" "text/plain"}
-        :body (pr-str ["Hello" :from 'Heroku])})
+    {:status 200
+     :headers {"Content-Type" "text/plain"}
+     :body (pr-str ["Hello" :from 'Puggle])})
+  (POST "/slack-announcement" {{:keys text user_name} :params}
+    (http/post "https://pugglepay.slack.com/services/hooks/incoming-webhook"
+               {:query-params {:token (env :slack-general-token "")}
+                :form-params {:payload (json/generate-string {:text text
+                                                              :username user_name
+                                                              :icon_emoji ":clojure:"})}})
+    {:status 200 :body ""})
   (ANY "*" []
-       (route/not-found (slurp (io/resource "404.html")))))
+    (route/not-found (slurp (io/resource "404.html")))))
 
 (defn wrap-error-page [handler]
   (fn [req]
@@ -51,6 +60,7 @@
   (let [port (Integer. (or port (env :port) 5000))]
     (jetty/run-jetty (wrap-app #'app) {:port port :join? false})))
 
+
 ;; For interactive development:
-;; (.stop server)
-;; (def server (-main))
+(.stop server)
+(def server (-main))

@@ -17,12 +17,6 @@ launch from the command line:
 
     $ lein run -m awesome-o.web
 
-Initialize a git repository for your project.
-
-    $ git init
-    $ git add .
-    $ git commit -m "Initial commit."
-
 You'll need the [heroku toolbelt](https://toolbelt.herokuapp.com)
 installed to manage the heroku side of your app. Once it's installed,
 get the app created:
@@ -48,11 +42,6 @@ You can deploy the skeleton project immediately:
 
     To git@heroku.com:awesome-o.git
      * [new branch]      master -> master
-
-It's live! Hit it with `curl`:
-
-    $ curl http://awesome-o.herokuapp.com
-    ["Hello" :from Heroku]
 
 The cookie-backed session store needs a session secret configured for encryption:
 

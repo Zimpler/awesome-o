@@ -9,6 +9,8 @@
                  [ring/ring-devel "1.2.2"]
                  [ring-basic-authentication "1.0.5"]
                  [environ "0.5.0"]
+                 [http-kit "2.1.16"]
+                 [cheshire "5.3.1"]
                  [com.cemerick/drawbridge "0.0.6"]]
   :min-lein-version "2.0.0"
   :plugins [[environ/environ.lein "0.2.1"]]
