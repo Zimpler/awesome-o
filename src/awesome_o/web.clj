@@ -29,7 +29,7 @@
     {:status 200
      :headers {"Content-Type" "text/plain"}
      :body (pr-str ["Hello" :from 'Puggle])})
-  (POST "/slack-announcement" {{:keys text user_name} :params}
+  (POST "/slack-announcement" {{:keys [text user_name]} :params}
     (http/post "https://pugglepay.slack.com/services/hooks/incoming-webhook"
                {:query-params {:token (env :slack-general-token "")}
                 :form-params {:payload (json/generate-string {:text text
