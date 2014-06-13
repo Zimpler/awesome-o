@@ -31,6 +31,9 @@
   (POST "/slack-announcement" {{:keys [text user_name]} :params}
     (bot/announcement user_name text)
     {:status 200 :body ""})
+  (POST "/mention" {{:keys [text user_name]} :params}
+    (bot/mention user_name text)
+    {:status 200 :body ""})
   (ANY "*" []
     (route/not-found (slurp (io/resource "404.html")))))
 
