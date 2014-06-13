@@ -12,5 +12,4 @@
 (defn mention [user-name text]
   (cond (movie/adam-sandler? text) (slack/say (movie/generate-movie))
         (thanks? text) (slack/say "YOU'RE WELCOME, @" (string/upper-case user-name))
-        :else (slack/say "@" (string/upper-case user-name) ": I AM AWESOME-O. "
-                         "YOU CAN ONLY ASK ME TO MAKE A MOVIE SCRIPT.")))
+        :else (slack/say "@" (string/upper-case user-name) ": I AM AWESOME-O.")))
