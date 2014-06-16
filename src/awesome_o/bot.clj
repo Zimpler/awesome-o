@@ -4,7 +4,7 @@
             [awesome-o.adam-sandler :as movie]))
 
 (defn announcement [user-name text]
-  (slack/say "@EVERYONE: NEW ANNOUNCEMENT FROM " (string/upper-case user-name) ":\n" text))
+  (slack/say "@everyone: NEW ANNOUNCEMENT FROM " (string/upper-case user-name) ":\n" text))
 
 (defn thanks? [text]
   (re-matches #"(?i).*(thank|thx|tack).*" text))
@@ -16,5 +16,5 @@
 (defn mention [user-name text]
   (cond (movie/adam-sandler? text) (slack/say (movie/generate-movie))
         (meaning-of-life? text) (slack/say "FORTY-TWO")
-        (thanks? text) (slack/say "YOU'RE WELCOME, @" (string/upper-case user-name))
-        :else (slack/say "@" (string/upper-case user-name) ": I AM AWESOME-O.")))
+        (thanks? text) (slack/say "YOU'RE WELCOME, @" user-name)
+        :else (slack/say user-name ": I AM AWESOME-O.")))
