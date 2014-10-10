@@ -10,6 +10,7 @@
             [ring.middleware.basic-authentication :as basic]
             [cemerick.drawbridge :as drawbridge]
             [environ.core :refer [env]]
+            [clojure.pprint :refer [pprint]]
             [awesome-o.bot :as bot]))
 
 (defn- authenticated? [user pass]
@@ -42,6 +43,7 @@
     (try (handler req)
          (catch Exception e
            (println (.getMessage e))
+           (pprint (seq (.getStackTrace e)))
            {:status 500
             :headers {"Content-Type" "text/html"}
             :body (slurp (io/resource "500.html"))}))))
