@@ -30,6 +30,7 @@
      :headers {"Content-Type" "text/plain"}
      :body (pr-str ["Hello" :from 'Puggle])})
   (POST "/slack-announcement" {{:keys [text user_name]} :params}
+    (println text)
     (bot/announcement user_name text)
     {:status 200 :body ""})
   (POST "/mention" {{:keys [text user_name]} :params}
@@ -50,7 +51,9 @@
   ;; TODO: heroku config:add SESSION_SECRET=$RANDOM_16_CHARS
   (let [store (cookie/cookie-store {:key (env :session-secret)})]
     (-> app
-        (trace/wrap-stacktrace)
+        ((if (env :production)
+           wrap-error-page
+           trace/wrap-stacktrace))
         (site {:session {:store store}}))))
 
 (defn -main [& [port]]
