@@ -7,7 +7,9 @@
             [instaparse.core :as insta]))
 
 (defn- ->string-list [data]
-  (string/join " | " (map #(str "'" % "'") data)))
+  (if (seq data)
+    (string/join " | " (map #(str "'" % "'") data))
+    "epsilon"))
 
 (defn- dialogue [persons locations]
   (insta/parser

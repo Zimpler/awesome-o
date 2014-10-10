@@ -19,9 +19,10 @@
 (defmulti process-parse-result first)
 
 (defmethod process-parse-result :declare-person
-  [[_ {:keys [word]}]]
-  (do (state/add-person word)
-      (str "OK, nice to meet you @" word "!")))
+  [[_ {:keys [word person]}]]
+  (let [name (or word person)]
+    (do (state/add-person name)
+        (str "OK, nice to meet you @" name "!"))))
 
 (defmethod process-parse-result :declare-location
   [[_ {:keys [word]}]]
