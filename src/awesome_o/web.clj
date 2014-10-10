@@ -41,6 +41,7 @@
   (fn [req]
     (try (handler req)
          (catch Exception e
+           (println (.getMessage e))
            {:status 500
             :headers {"Content-Type" "text/html"}
             :body (slurp (io/resource "500.html"))}))))
