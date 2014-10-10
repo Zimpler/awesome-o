@@ -22,8 +22,8 @@
                   get-schedule / reset-schedule / declare-person /
                   who-is
 
-     get-slackmaster = <'who is slackmaster'>
-     select-next-slackmaster = <'select next slackmaster'>
+     get-slackmaster = <'who is '>slackmaster
+     select-next-slackmaster = <'select next '>slackmaster
 
      declare-person = (myself / word) <to-be> <' a '>
                       (<'person'> | <'puggle'>)
@@ -69,6 +69,7 @@
      person = " (->string-list persons) "
      <someone> = person / everybody / myself
      weekday = " (->string-list time/weekdays) "
+     <slackmaster> = <'slack'><' '>?<'master'>
 
      iso-date = #'[0-9]{4}-[0-9]{2}-[0-9]{2}'
      <day> = <'on '>? (weekday | iso-date)
@@ -129,6 +130,7 @@
   (-> text
       string/lower-case
       (string/replace #"[,.!?:@]" " ")
+      (string/replace "’" "'")
       (string/replace #"[\s]+" " ")
       string/trim))
 
