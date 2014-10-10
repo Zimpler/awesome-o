@@ -30,10 +30,10 @@
      :headers {"Content-Type" "text/plain"}
      :body (pr-str ["Hello" :from 'Puggle])})
   (POST "/slack-announcement" {{:keys [text user_name]} :params}
-    (println text)
     (bot/announcement user_name text)
     {:status 200 :body ""})
   (POST "/mention" {{:keys [text user_name]} :params}
+    (println text)
     (bot/mention user_name text)
     {:status 200 :body ""})
   (ANY "*" []
