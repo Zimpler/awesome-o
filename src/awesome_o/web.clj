@@ -42,8 +42,6 @@
   (fn [req]
     (try (handler req)
          (catch Exception e
-           (println (.getMessage e))
-           (pprint (seq (.getStackTrace e)))
            {:status 500
             :headers {"Content-Type" "text/html"}
             :body (slurp (io/resource "500.html"))}))))
@@ -52,9 +50,7 @@
   ;; TODO: heroku config:add SESSION_SECRET=$RANDOM_16_CHARS
   (let [store (cookie/cookie-store {:key (env :session-secret)})]
     (-> app
-        ((if (env :production)
-           wrap-error-page
-           trace/wrap-stacktrace))
+        (trace/wrap-stacktrace)
         (site {:session {:store store}}))))
 
 (defn -main [& [port]]
