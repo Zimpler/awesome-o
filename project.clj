@@ -11,6 +11,10 @@
                  [environ "0.5.0"]
                  [http-kit "2.1.16"]
                  [cheshire "5.3.1"]
+                 [instaparse "1.3.4"]
+                 [com.taoensso/carmine "2.7.0"]
+                 [clj-time "0.8.0"]
+                 [org.clojure/core.match "0.2.1"]
                  [com.cemerick/drawbridge "0.0.6"]]
   :min-lein-version "2.0.0"
   :plugins [[environ/environ.lein "0.2.1"]]
