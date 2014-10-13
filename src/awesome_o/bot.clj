@@ -18,6 +18,28 @@
 
 (defmulti process-parse-result first)
 
+(defmethod process-parse-result :help
+  [_]
+  (string/join "\n"
+               ["You can tell me one of the following:"
+                " - I'm a puggle"
+                " - person is a puggle"
+                " - person is a dev"
+                " - who is person?"
+                " - location is a location"
+                " - person is in location"
+                " - where is person?"
+                " - person was born on 1980-01-01"
+                " - when is person's birthday?"
+                " - who is slackaster?"
+                " - person is away today"
+                " - person is away from monday to friday"
+                " - select the next slackmaster!"
+                " - what is the schedule of person?"
+                " - clear the schedule of person."
+                " - what is the meaning of life?"
+                " - generate an Adam Sandler movie idea"]))
+
 (defmethod process-parse-result :declare-person
   [[_ {:keys [word person]}]]
   (let [name (or word person)]
@@ -124,8 +146,10 @@
      (movie/adam-sandler? text) (movie/generate-movie)
      (meaning-of-life? text) "forty-two"
      (thanks? text) (str "you're welcome, @" user-name)
-     :else (str user-name ": does not compute:"
-                (parser/failure->string parse-result)))))
+     :else (str user-name ": does not compute:\n"
+                "```\n"
+                (parser/failure->string parse-result)
+                "\n```"))))
 
 (defn mention [user-name text]
   (slack/say (reply user-name text)))

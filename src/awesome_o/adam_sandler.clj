@@ -6,41 +6,41 @@
        (re-matches #"(?i).*(idea|plot|script).*" text)))
 
 (def intros
-  ["HUM... LET'S SEE... HOW ABOUT:"
-   "OKAY, HOW ABOUT THIS:"
-   "HUM... HOW ABOUT THIS:"
-   "HUM... OKAY... HUM... HOW ABOUT:"])
+  ["hum... let's see... how about:"
+   "okay, how about this:"
+   "hum... how about this:"
+   "hum... okay... hum... how about:"])
 
 (def subjects
-  ["HIS GIRLFRIEND"
-   "HIS BOSS"
-   "HIS COUSIN"
-   "HIS FRIEND"
-   "HIS DOG"])
+  ["his girlfriend"
+   "his boss"
+   "his cousin"
+   "his friend"
+   "his dog"])
 
 (def verbs
-  ["FALLS IN LOVES WITH"
-   "WILL INHERIT FROM"
-   "HAS TO FIND"
-   "LOST"
-   "IS AFRAID OF"
-   "IS LOOKING FOR"
-   "ARRIVES ON A DESERTED ISLAND WITH"])
+  ["falls in loves with"
+   "will inherit from"
+   "has to find"
+   "lost"
+   "is afraid of"
+   "is looking for"
+   "arrives on a deserted island with"])
 
 (def transitions
-  ["BUT IN ORDER TO SUCCEED, HE HAS TO FIGHT"
-   "BUT THEN REALISES THAT ACTUALLY IT'S"
-   "AND THEN FALLS IN LOVE WITH"])
+  ["but in order to succeed, he has to fight"
+   "but then realises that actually it's"
+   "and then falls in love with"])
 
 (def second-subjects
-  ["A COCOCUT"
-   "A GOLDEN RETRIEWER"
-   "A CARROT"
-   "ROB SCHNEIDER"])
+  ["a cococut"
+   "a golden retriewer"
+   "a carrot"
+   "rob schneider"])
 
 (defn generate-movie []
   (string/join "" [(rand-nth intros)
-                   " ADAM SANDLER "
+                   " Adam Sandler "
                    (rand-nth verbs)
                    " "
                    (rand-nth subjects)
@@ -48,4 +48,4 @@
                    (rand-nth transitions)
                    " "
                    (rand-nth second-subjects)
-                   ", OR SOMETHING..?"]))
+                   ", or something..?"]))

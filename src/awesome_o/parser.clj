@@ -3,7 +3,8 @@
             [clojure.core.match :refer [match]]
             [awesome-o.time :as time
              :refer [today tomorrow weekdays next-weekday
-                     prev-weekday parse-date format-date]]
+                     prev-weekday parse-date format-date
+                     previous-day]]
             [instaparse.core :as insta]))
 
 (defn- ->string-list [data]
@@ -14,16 +15,18 @@
 (defn- dialogue [persons locations]
   (insta/parser
    (str
-    "<mention> = (<'awesome-o'> | <'awesomeo'> | <'awesomo'>) <' '> dialogue
-     <dialogue> = get-slackmaster / select-next-slackmaster /
+    "<mention> = (<'awesome-o'> | <'awesomeo'> | <'awesomo'> | <'bot'>) <' '> dialogue
+     <dialogue> = help / get-slackmaster / select-next-slackmaster /
                   set-job / set-birthday /
                   get-birthday / set-away / set-location /
                   get-location / declare-location /
                   get-schedule / reset-schedule / declare-person /
                   who-is
 
-     get-slackmaster = <'who is '>slackmaster
-     select-next-slackmaster = <'select next '>slackmaster
+     help = <'help'>
+
+     get-slackmaster = <'who is '> <'the '>? slackmaster
+     select-next-slackmaster = <'select '> <'the '>? <'next '> slackmaster
 
      declare-person = (myself / word) <to-be> <' a '>
                       (<'person'> | <'puggle'>)
@@ -60,7 +63,7 @@
      to-be = <' is'> | <' am'> | <'\\'m'> | <'\\'s'> | <' will be'> | <'\\'ll be'>
 
      job = dev | sales | 'biz' | 'bizdev' | ux
-     <dev> = 'dev' <'elopper'>?
+     <dev> = 'dev' <'eloper'>?
      <sales> = 'sales' (<'man'> | <'woman'>)
      <ux> = 'ux'<' designer'>
 
@@ -105,7 +108,10 @@
                           {:from norm-date :to norm-date})
 
     [["until" [:date date]]] {:from (normalize-date "today")
-                              :to (normalize-date date)}
+                              :to (-> date normalize-date
+                                      parse-date
+                                      previous-day
+                                      format-date)}
 
     [["from" [:date start] "to" [:date end]]]
     (let [from (normalize-date start)

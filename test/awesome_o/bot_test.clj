@@ -25,7 +25,7 @@
            "OK, nice to meet you @anders!"))
     (is (= (reply "who is anders?")
            "anders is a puggle"))
-    (is (= (reply "anders is a developper")
+    (is (= (reply "anders is a developer")
            "OK, now I know anders is part of the dev team"))
     (is (= (reply "who is anders?")
            "anders is a puggle part of the dev team"))
