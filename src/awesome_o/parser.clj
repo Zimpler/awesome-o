@@ -143,10 +143,6 @@
 (defn success? [result]
   (not (insta/failure? result)))
 
-(def state {:persons ["jean-louis" "patrik"]
-            :locations ["göteborg" "stockholm"]
-            :myself "jean-louis"})
-
 (defn parse [{:keys [myself persons locations]} text]
   (let [result (insta/parse (dialogue persons locations)
                             (cleanup text))]

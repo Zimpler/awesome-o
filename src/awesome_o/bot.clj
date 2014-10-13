@@ -51,9 +51,6 @@
   (do (state/add-location word)
       (str "OK, now I now that " word " is a location")))
 
-(defmethod process-parse-result :get-slackmaster [_]
-  "who is slackmaster")
-
 (defmethod process-parse-result :set-location
   [[_ {:keys [person location]}]]
   (do (state/set-persons-location person location)
