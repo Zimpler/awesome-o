@@ -35,6 +35,12 @@
 (def date-format
   (clj-time.format/formatter "yyyy-MM-dd"))
 
+(def day-and-month (juxt day month))
+
+(defn same-day-and-month? [date-a date-b]
+  (= (day-and-month date-a)
+     (day-and-month date-b)))
+
 (defn format-date [date]
   (->> date
        ((juxt year month day))

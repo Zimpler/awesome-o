@@ -35,6 +35,13 @@
   (apply hash-map
          (wcar* (car/hgetall "birthdays"))))
 
+(defn persons-born-today []
+  (->> (get-birthdays)
+       (filter
+        (fn [[_ date]]
+          (time/same-day-and-month? (time/parse-date date)
+                                    (time/today))))
+       (map first)))
 
 (defn set-persons-location [name location]
   (wcar* (car/hset "persons-location" name location)))

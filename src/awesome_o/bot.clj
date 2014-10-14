@@ -153,4 +153,7 @@
 (defn ping []
   (when (and (time/working-hour?)
              (state/acquire-daily-announcement))
-    (slack/say (process-parse-result [:select-next-slackmaster]))))
+    (slack/say (process-parse-result [:select-next-slackmaster]))
+    (doseq [person (state/persons-born-today)]
+      (slack/say "Today is @" person "'s birthday! "
+                 "Happy birthday!"))))
