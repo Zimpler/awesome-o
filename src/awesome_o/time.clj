@@ -19,6 +19,9 @@
   (and (not (weekend? (now)))
        (> 18 (time/hour (now)) 9)))
 
+(defn monday-today? []
+  (monday? (today)))
+
 (defn next-day [date]
   (time/plus date (days 1)))
 

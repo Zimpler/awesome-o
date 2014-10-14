@@ -8,8 +8,13 @@
              {:query-params {:token token}
               :form-params {:payload (json/generate-string payload)}}))
 
-(defn say [& stuff]
-  (post (env :slack-general-token "")
-        {:text (apply str stuff)
-         :username "awesome-o"
-         :icon_emoji ":awesomeo:"}))
+(defn channel->token [channel]
+  (case channel
+    "general" (env :slack-general-token "")
+    "dev" (env :slack-dev-token "")))
+
+(defn say [stuff & {:keys [channel username emoji]}]
+  (post (channel->token (or channel "general"))
+        {:text stuff
+         :username (or username "awesome-o")
+         :icon_emoji (or emoji ":awesomeo:")}))

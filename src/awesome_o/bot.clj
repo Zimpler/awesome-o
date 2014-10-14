@@ -6,9 +6,6 @@
             [awesome-o.time :as time]
             [awesome-o.adam-sandler :as movie]))
 
-(defn announcement [user-name text]
-  (slack/say "@everyone: NEW ANNOUNCEMENT FROM " (string/upper-case user-name) ":\n" text))
-
 (defn thanks? [text]
   (re-matches #"(?i).*(thank|thx|tack).*" text))
 
@@ -147,6 +144,10 @@
                 (parser/failure->string parse-result)
                 "\n```"))))
 
+(defn announcement [user-name text]
+  (slack/say (str "@everyone: new announcement from " user-name ":\n"
+                  text)))
+
 (defn mention [user-name text]
   (slack/say (reply user-name text)))
 
@@ -155,5 +156,13 @@
              (state/acquire-daily-announcement))
     (slack/say (process-parse-result [:select-next-slackmaster]))
     (doseq [person (state/persons-born-today)]
-      (slack/say "Today is @" person "'s birthday! "
-                 "Happy birthday!"))))
+      (slack/say (str "Today is @" person "'s birthday! "
+                      "Happy birthday!")))
+    (when (time/monday-today?)
+      (let [honeybadgers (->> (state/available-devs)
+                              shuffle
+                              (take 3)
+                              (map (partial str "@"))
+                              (string/join ", "))]
+        (slack/say (str "Honeydager monday! ping: " honeybadgers)
+                   :channel "dev")))))

@@ -97,6 +97,9 @@
   (wcar* (car/del (str "period-away-" person))))
 
 
+(defn available-devs []
+  (remove is-away (get-job-persons "dev")))
+
 (defn reset-slackmaster []
   (wcar* (car/set "slackmaster-index" "0")))
 
@@ -110,11 +113,10 @@
 
 (defn select-next-slackmaster []
   (do (wcar* (car/incr "slackmaster-index"))
-      (if-let [dev (get-slackmaster)] dev
-        (let [all-devs (get-job-persons "dev")
-              available-devs (remove is-away all-devs)]
-          (when (seq available-devs) (recur))))))
-
+      (if-let [dev (get-slackmaster)]
+        dev
+        (when (seq (available-devs))
+          (recur)))))
 
 (defn reset-daily-announcement []
   (wcar* (car/set (str "daily-announcement-"
