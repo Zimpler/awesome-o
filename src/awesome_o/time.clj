@@ -4,8 +4,20 @@
    [clj-time.predicates :refer :all]
    [clj-time.format]))
 
+(def stockholm-tz
+  (time/time-zone-for-id "Europe/Stockholm"))
+
+(defn now []
+  (time/to-time-zone (time/now) stockholm-tz))
+
 (defn today []
-  (time/today))
+  (->> (now)
+      ((juxt year month day))
+      (apply time/local-date)))
+
+(defn working-hour? []
+  (and (not (weekend? (now)))
+       (> 18 (time/hour (now)) 9)))
 
 (defn next-day [date]
   (time/plus date (days 1)))
@@ -46,7 +58,9 @@
     period))
 
 (defn format-period [{:keys [from to]}]
-  (str "from " from " to " to))
+  (if (= from to)
+    (str "on " from)
+    (str "from " from " to " to)))
 
 (defn- next-date [date pred]
   (if (pred date)

@@ -26,6 +26,7 @@
   (ANY "/repl" {:as req}
     (drawbridge req))
   (GET "/" []
+    (bot/ping)
     {:status 200
      :headers {"Content-Type" "text/plain"}
      :body (pr-str ["Hello" :from 'Puggle])})
@@ -33,7 +34,6 @@
     (bot/announcement user_name text)
     {:status 200 :body ""})
   (POST "/mention" {{:keys [text user_name]} :params}
-    (println text)
     (bot/mention user_name text)
     {:status 200 :body ""})
   (ANY "*" []

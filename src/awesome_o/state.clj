@@ -25,7 +25,6 @@
   (wcar* (car/smembers "persons")))
 
 
-
 (defn set-birthday [name date]
   (wcar* (car/hset "birthdays" name date)))
 
@@ -35,7 +34,6 @@
 (defn get-birthdays []
   (apply hash-map
          (wcar* (car/hgetall "birthdays"))))
-
 
 
 (defn set-persons-location [name location]
@@ -58,7 +56,6 @@
   (wcar* (car/smembers "locations")))
 
 
-
 (def jobs ["dev" "sales" "biz" "bizdev" "ux"])
 
 (defn- job-key [job-name]
@@ -79,7 +76,6 @@
   (wcar* (car/smembers (job-key job))))
 
 
-
 (defn add-period-away [person period]
   (wcar* (car/lpush (str "period-away-" person)
                     period)))
@@ -92,6 +88,7 @@
 
 (defn reset-periods-away [person]
   (wcar* (car/del (str "period-away-" person))))
+
 
 (defn reset-slackmaster []
   (wcar* (car/set "slackmaster-index" "0")))
@@ -110,3 +107,14 @@
         (let [all-devs (get-job-persons "dev")
               available-devs (remove is-away all-devs)]
           (when (seq available-devs) (recur))))))
+
+
+(defn reset-daily-announcement []
+  (wcar* (car/set (str "daily-announcement-"
+                       (time/format-date (time/today)))
+                  nil)))
+
+(defn acquire-daily-announcement []
+  (not (wcar* (car/getset (str "daily-announcement-"
+                               (time/format-date (time/today)))
+                          true))))

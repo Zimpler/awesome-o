@@ -18,8 +18,7 @@
 
 (defmulti process-parse-result first)
 
-(defmethod process-parse-result :help
-  [_]
+(defmethod process-parse-result :help [_]
   (string/join "\n"
                ["You can tell me one of the following:"
                 " - I'm a puggle"
@@ -150,3 +149,8 @@
 
 (defn mention [user-name text]
   (slack/say (reply user-name text)))
+
+(defn ping []
+  (when (and (time/working-hour?)
+             (state/acquire-daily-announcement))
+    (slack/say (process-parse-result [:select-next-slackmaster]))))
