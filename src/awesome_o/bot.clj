@@ -42,6 +42,22 @@
     (do (state/add-person name)
         (str "OK, nice to meet you @" name "!"))))
 
+(defmethod process-parse-result :forget-person
+  [[_ {:keys [person]}]]
+  (do (state/remove-persons-job person)
+      (state/remove-birthday person)
+      (state/remove-persons-location person)
+      (state/reset-periods-away person)
+      (state/remove-person person)
+      (str "OK, I've forgotten everything about " person)))
+
+(defmethod process-parse-result :list-team
+  [[_ {:keys [job]}]]
+  (let [members (state/get-job-persons job)]
+    (if (seq members)
+      (str "The " job " team: " (string/join ", " members))
+      (str "THERE IS NO " (string/upper-case job) ", RUN FOR YOUR LIFE!!"))))
+
 (defmethod process-parse-result :declare-location
   [[_ {:keys [word]}]]
   (do (state/add-location word)

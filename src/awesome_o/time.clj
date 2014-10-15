@@ -15,9 +15,16 @@
       ((juxt year month day))
       (apply time/local-date)))
 
+(defn today-at
+  ([hour] (today-at hour 0))
+  ([hour min] (today-at hour min 0))
+  ([hour min sec]
+     (time/from-time-zone (time/today-at hour min sec)
+                          stockholm-tz)))
+
 (defn working-hour? []
   (and (not (weekend? (now)))
-       (> 18 (time/hour (now)) 9)))
+       (time/within? (today-at 9) (today-at 18) (now))))
 
 (defn monday-today? []
   (monday? (today)))

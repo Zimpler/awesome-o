@@ -15,6 +15,7 @@
 (defn- ismember? [key value]
   (pos? (wcar* (car/sismember key value))))
 
+
 (defn add-person [name]
   (wcar* (car/sadd "persons" name)))
 
@@ -35,6 +36,10 @@
   (apply hash-map
          (wcar* (car/hgetall "birthdays"))))
 
+(defn remove-birthday [person]
+  (wcar* (car/hdel "birthdays" person)))
+
+
 (defn persons-born-today []
   (->> (get-birthdays)
        (filter
@@ -46,12 +51,16 @@
 (defn set-persons-location [name location]
   (wcar* (car/hset "persons-location" name location)))
 
+(defn remove-persons-location [person]
+  (wcar* (car/hdel "persons-location" person)))
+
 (defn get-persons-location [name]
   (wcar* (car/hget "persons-location" name)))
 
 (defn get-persons-locations []
   (apply hash-map
          (wcar* (car/hgetall "persons-location"))))
+
 
 (defn add-location [location]
   (wcar* (car/sadd "locations" location)))
@@ -70,10 +79,13 @@
 
 (def ^:private job-keys (mapv job-key jobs))
 
+(defn remove-persons-job [name]
+  (wcar* (doseq [job-key job-keys]
+           (car/srem job-key name))))
+
 (defn set-persons-job [name new-job]
-  (wcar*
-   (doseq [job-key job-keys] (car/srem job-key name))
-   (car/sadd (job-key new-job) name)))
+  (wcar* (remove-persons-job name)
+         (car/sadd (job-key new-job) name)))
 
 (defn get-persons-job [name]
   (first (filter #(ismember? (job-key %) name)

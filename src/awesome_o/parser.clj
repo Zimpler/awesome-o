@@ -21,7 +21,7 @@
                   get-birthday / set-away / set-location /
                   get-location / declare-location /
                   get-schedule / reset-schedule / declare-person /
-                  who-is
+                  forget-person / list-team / who-is
 
      help = <'help'>
 
@@ -31,8 +31,13 @@
      declare-person = (myself / word) <to-be> <' a '>
                       (<'person'> | <'puggle'>)
 
+     forget-person = <'forget about '> person
+
      set-job = someone <to-be> (<' a '> | <' part of '>) job |
                someone <to-be> <' part of the '> job <' team'>
+
+     list-team = <'who is part of the '> job <' team'> |
+                 <'who is part of '> job
 
      who-is = <'who is '> person
 
@@ -64,7 +69,7 @@
 
      job = dev | sales | 'biz' | 'bizdev' | ux
      <dev> = 'dev' <'eloper'>?
-     <sales> = 'sales' (<'man'> | <'woman'>)
+     <sales> = 'sales' (<''> | <'man'> | <'woman'>)
      <ux> = 'ux'<' designer'>
 
      myself = <'myself'> / <'my'> / <'me'> / <'i'>
