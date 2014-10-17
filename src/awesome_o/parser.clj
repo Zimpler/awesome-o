@@ -50,7 +50,7 @@
      set-birthday = <'the birthday of '> person <' is '> date |
                     myself <' birthday is '> date |
                     date <' is '> someone <'\\'s'>? <' birthday'> |
-                    person <to-be> <' born on '> date
+                    someone <to-be> <' born on '> date
 
      get-birthday = <'when is the birthday of '> person |
                     <'when is '> person <'\\'s'>? <' birthday'>
@@ -65,7 +65,7 @@
      reset-schedule = (<'forget'> | <'clear'> ) <' '> someone <'\\'s'>? <' schedule'> |
                       (<'forget'> | <'clear'> ) <' the schedule of '> person
 
-     to-be = <' is'> | <' am'> | <'\\'m'> | <'\\'s'> | <' will be'> | <'\\'ll be'>
+     to-be = <' is'> | <' am'> | <' was'> | <'\\'m'> | <'\\'s'> | <' will be'> | <'\\'ll be'>
 
      job = dev | sales | 'biz' | 'bizdev' | ux
      <dev> = 'dev' <'eloper'>?
@@ -75,7 +75,7 @@
      myself = <'myself'> / <'my'> / <'me'> / <'i'>
      everybody = <'everybody'> | <'everyone'>
      person = " (->string-list persons) "
-     <someone> = person / everybody / myself
+     <someone> = person / myself
      weekday = " (->string-list time/weekdays) "
      <slackmaster> = <'slack'><' '>?<'master'>
 
