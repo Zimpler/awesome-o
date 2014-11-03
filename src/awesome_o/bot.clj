@@ -180,5 +180,5 @@
                               (take 3)
                               (map (partial str "@"))
                               (string/join ", "))]
-        (slack/say (str "Honeydager monday! ping: " honeybadgers)
+        (slack/say (str "Honeybadger monday! ping: " honeybadgers)
                    :channel "dev")))))
