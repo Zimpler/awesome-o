@@ -167,18 +167,23 @@
 (defn mention [user-name text]
   (slack/say (reply user-name text)))
 
+(defn- pingify
+  "takes a list of people and creates
+   a string like in the example
+   (pingify [\"lars\" \"magnus\"])
+   => \"@lars, @magnus\""
+  [people]
+  (string/join ", " (map (partial str "@") people)))
+
 (defn ping []
   (when (and (time/working-hour?)
              (state/acquire-daily-announcement))
     (slack/say (process-parse-result [:select-next-slackmaster]))
     (doseq [person (state/persons-born-today)]
-      (slack/say (str "Today is @" person "'s birthday! "
-                      "Happy birthday!")))
+      (slack/say (format "Today is @%s's birthday! Happy birthday!" person)))
     (when (time/monday-today?)
-      (let [honeybadgers (->> (state/available-devs)
-                              shuffle
-                              (take 3)
-                              (map (partial str "@"))
-                              (string/join ", "))]
-        (slack/say (str "Honeybadger monday! ping: " honeybadgers)
-                   :channel "dev")))))
+      (let [devs (shuffle (state/available-devs))
+            meeting-master (pingify [(rand-nth devs)])
+            honeybadgers (->> devs (take 3) pingify)]
+        (slack/say (str "Honeydager monday! ping: " honeybadgers) :channel "dev")
+        (slack/say (str "Todays meeting master for dev this week is " meeting-master))))))
