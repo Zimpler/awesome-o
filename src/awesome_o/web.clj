@@ -11,6 +11,7 @@
             [cemerick.drawbridge :as drawbridge]
             [environ.core :refer [env]]
             [clojure.pprint :refer [pprint]]
+            [cheshire.core :as json]
             [awesome-o.bot :as bot]))
 
 (defn- authenticated? [user pass]
@@ -34,8 +35,12 @@
     (bot/announcement user_name text)
     {:status 200 :body ""})
   (POST "/mention" {{:keys [text user_name]} :params}
-    (bot/mention user_name text)
-    {:status 200 :body ""})
+    {:status 200
+     :headers {"Content-Type" "application/json"}
+     :body (json/generate-string
+            {:text (bot/reply user_name text)
+             :username "awesome-o"
+             :icon_emoji ":awesomeo:"})})
   (ANY "*" []
     (route/not-found (slurp (io/resource "404.html")))))
 
@@ -61,5 +66,7 @@
     (jetty/run-jetty (wrap-app #'app) {:port port :join? false})))
 
 ;; For interactive development:
-;; (.stop server)
-;; (def server (-main))
+(comment
+  (.stop server)
+  (def server (-main))
+  )
