@@ -26,7 +26,7 @@
                 " - where is person?"
                 " - person was born on 1980-01-01"
                 " - when is person's birthday?"
-                " - who is slackaster?"
+                " - who is slackmaster?"
                 " - person is away today"
                 " - person is away from monday to friday"
                 " - select the next slackmaster!"
