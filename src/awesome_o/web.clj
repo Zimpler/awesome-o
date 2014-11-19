@@ -12,7 +12,7 @@
             [environ.core :refer [env]]
             [clojure.pprint :refer [pprint]]
             [cheshire.core :as json]
-            [awesome-o.bot :as bot]))
+            [awesome-o.slack :as slack]))
 
 (defn- authenticated? [user pass]
   ;; TODO: heroku config:add REPL_USER=[...] REPL_PASSWORD=[...]
@@ -27,20 +27,15 @@
   (ANY "/repl" {:as req}
     (drawbridge req))
   (GET "/" []
-    (bot/ping)
+    (slack/ping)
     {:status 200
      :headers {"Content-Type" "text/plain"}
      :body (pr-str ["Hello" :from 'Puggle])})
   (POST "/slack-announcement" {{:keys [text user_name]} :params}
-    (bot/announcement user_name text)
+    (slack/announcement user_name text)
     {:status 200 :body ""})
   (POST "/mention" {{:keys [text user_name]} :params}
-    {:status 200
-     :headers {"Content-Type" "application/json"}
-     :body (json/generate-string
-            {:text (bot/reply user_name text)
-             :username "awesome-o"
-             :icon_emoji ":awesomeo:"})})
+    (slack/mention user_name text))
   (ANY "*" []
     (route/not-found (slurp (io/resource "404.html")))))
 
