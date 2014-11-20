@@ -15,7 +15,7 @@
 (defn- dialogue [persons locations]
   (insta/parser
    (str
-    "<mention> = (<'awesome-o'> | <'awesomeo'> | <'awesomo'> | <'bot'>) <' '> dialogue
+    "<mention> = (<'awesome-o'> | <'awesomeo'> | <'awesomo'> | <'bot'> | <'test'>) <' '> dialogue
      <dialogue> = help / get-slackmaster / select-next-slackmaster /
                   set-job / set-birthday /
                   get-birthday / set-away / set-location /

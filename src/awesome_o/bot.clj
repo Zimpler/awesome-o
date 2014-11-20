@@ -43,11 +43,7 @@
 
 (defmethod react :forget-person
   [[_ {:keys [person]}]]
-  (do (state/remove-persons-job person)
-      (state/remove-birthday person)
-      (state/remove-persons-location person)
-      (state/reset-periods-away person)
-      (state/remove-person person)
+  (do (state/remove-person person)
       (str "OK, I've forgotten everything about " person)))
 
 (defmethod react :list-team
@@ -143,7 +139,7 @@
     (str "THERE IS NO DEV! OMG RUN FOR YOUR LIFE!!")))
 
 (defn reply [user-name text]
-  (let [persons (state/get-persons)
+  (let [persons (state/get-names)
         locations (state/get-locations)
         parse-result (parser/parse {:myself user-name
                                     :persons persons

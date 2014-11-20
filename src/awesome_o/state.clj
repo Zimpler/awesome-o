@@ -15,30 +15,66 @@
 (defn- ismember? [key value]
   (pos? (wcar* (car/sismember key value))))
 
+(defn reset-state []
+  (wcar* (car/set "state"
+                  {:persons {}
+                   :locations []
+                   :slackmasters-index 0
+                   :dev-meeting-index 0})))
+
+(defn get-state []
+  (wcar* (car/get "state")))
+
+(defn update-state [fun]
+  (let [state (get-state)]
+    (wcar* (car/set "state" (fun state)))))
 
 (defn add-person [name]
-  (wcar* (car/sadd "persons" name)))
+  (update-state
+   (fn [state]
+     (let [last-position (->> state :persons vals (map :position) (apply max 0))]
+       (if (get-in state [:persons name])
+         state
+         (assoc-in state [:persons name]
+                   {:birthday nil
+                    :location nil
+                    :team nil
+                    :away []
+                    :position (+ last-position 1)}))))))
+
+(defn set-person-key [name key value]
+  (do (add-person name)
+      (update-state
+       (fn [state]
+         (update-in state [:persons name] assoc key value)))))
+
+(defn get-person-key [name key]
+ (get-in (get-state) [:persons name key]))
+
+(defn get-persons-key [key]
+  (->> (get-state)
+      :persons
+      (map (fn [[name person]] [name (person key)]))
+      (into {})))
 
 (defn remove-person [name]
-  (wcar* (car/srem "persons" name)))
+  (update-state
+   (fn [state] (update-in state [:persons] dissoc name))))
 
-(defn get-persons []
-  (wcar* (car/smembers "persons")))
-
+(defn get-names []
+  (-> (get-state) :persons keys))
 
 (defn set-birthday [name date]
-  (wcar* (car/hset "birthdays" name date)))
+  (set-person-key name :birthday date))
 
-(defn get-birthday [person]
-  (wcar* (car/hget "birthdays" person)))
+(defn get-birthday [name]
+  (get-person-key name :birthday))
 
 (defn get-birthdays []
-  (apply hash-map
-         (wcar* (car/hgetall "birthdays"))))
+  (get-persons-key :birthday))
 
-(defn remove-birthday [person]
-  (wcar* (car/hdel "birthdays" person)))
-
+(defn remove-birthday [name]
+  (set-person-key name :birthday nil))
 
 (defn persons-born-today []
   (->> (get-birthdays)
@@ -49,27 +85,32 @@
        (map first)))
 
 (defn set-persons-location [name location]
-  (wcar* (car/hset "persons-location" name location)))
+  (set-person-key name :location location))
 
 (defn remove-persons-location [person]
-  (wcar* (car/hdel "persons-location" person)))
+  (set-person-key name :location nil))
 
 (defn get-persons-location [name]
-  (wcar* (car/hget "persons-location" name)))
+  (get-person-key name :location))
 
 (defn get-persons-locations []
-  (apply hash-map
-         (wcar* (car/hgetall "persons-location"))))
+  (get-persons-key :location))
 
 
 (defn add-location [location]
-  (wcar* (car/sadd "locations" location)))
+  (update-state
+   (fn [state]
+     (update-in state [:locations] conj location))))
 
 (defn remove-location [location]
-  (wcar* (car/srem "locations" location)))
+  (update-state
+   (fn [state]
+     (update-in state [:locations]
+                (fn [locations]
+                  (vec (remove #{location} locations)))))))
 
 (defn get-locations []
-  (wcar* (car/smembers "locations")))
+  (get (get-state) :locations))
 
 
 (def jobs ["dev" "sales" "biz" "bizdev" "ux"])
@@ -80,55 +121,60 @@
 (def ^:private job-keys (mapv job-key jobs))
 
 (defn remove-persons-job [name]
-  (wcar* (doseq [job-key job-keys]
-           (car/srem job-key name))))
+  (set-person-key name :team nil))
 
 (defn set-persons-job [name new-job]
-  (wcar* (remove-persons-job name)
-         (car/sadd (job-key new-job) name)))
+  (set-person-key name :team new-job))
 
 (defn get-persons-job [name]
-  (first (filter #(ismember? (job-key %) name)
-                 jobs)))
+  (get-person-key name :team))
 
 (defn get-job-persons [job]
-  (wcar* (car/smembers (job-key job))))
+  (->> (get-persons-key :team)
+       (filter (fn [[name j]] (= j job)))
+       (map first)))
 
 
-(defn add-period-away [person period]
-  (wcar* (car/lpush (str "period-away-" person)
-                    period)))
+(defn add-period-away [name period]
+  (update-state
+   (fn [state]
+     (update-in state [:persons name :away] conj period))))
 
-(defn get-periods-away [person]
-  (wcar* (car/lrange (str "period-away-" person) 0 100)))
+(defn get-periods-away [name]
+  (get-person-key name :away))
+
+(defn reset-periods-away [name]
+  (set-person-key name :away []))
 
 (defn is-away [person]
   (some time/active-period (get-periods-away person)))
-
-(defn reset-periods-away [person]
-  (wcar* (car/del (str "period-away-" person))))
-
 
 (defn available-devs []
   (remove is-away (get-job-persons "dev")))
 
 (defn reset-slackmaster []
-  (wcar* (car/set "slackmaster-index" "0")))
+  (update-state
+   (fn [state] (assoc state :slackmasters-index 0))))
+
+(defn get-slackmaster-index []
+  (get (get-state) :slackmasters-index))
 
 (defn get-slackmaster []
   (let [slackmaster
         (nth (cycle (get-job-persons "dev"))
-             (read-string
-              (or (wcar* (car/get "slackmaster-index")) "0")))]
+             (get-slackmaster-index))]
     (when-not (is-away slackmaster)
       slackmaster)))
 
 (defn select-next-slackmaster []
-  (do (wcar* (car/incr "slackmaster-index"))
-      (if-let [dev (get-slackmaster)]
-        dev
-        (when (seq (available-devs))
-          (recur)))))
+  (do
+    (update-state
+     (fn [state]
+       (update-in state [:slackmasters-index] inc)))
+    (if-let [dev (get-slackmaster)]
+      dev
+      (when (seq (available-devs))
+        (recur)))))
 
 (defn reset-daily-announcement []
   (wcar* (car/set (str "daily-announcement-"

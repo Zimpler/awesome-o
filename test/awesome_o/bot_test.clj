@@ -6,6 +6,7 @@
 
 (defn setup-redis []
   (do (state/flushdb)
+      (state/reset-state)
       (state/add-person "magnus")
       (state/add-person "jean-louis")
       (state/add-person "patrik")
