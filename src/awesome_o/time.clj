@@ -24,7 +24,7 @@
 
 (defn working-hour? []
   (and (not (weekend? (now)))
-       (time/within? (today-at 9) (today-at 18) (now))))
+       (time/within? (today-at 8) (today-at 18) (now))))
 
 (defn monday-today? []
   (monday? (today)))
