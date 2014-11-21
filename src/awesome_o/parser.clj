@@ -67,7 +67,7 @@
 
      to-be = <' is'> | <' am'> | <' was'> | <'\\'m'> | <'\\'s'> | <' will be'> | <'\\'ll be'>
 
-     job = dev | sales | 'biz' | 'bizdev' | ux
+     job = dev | sales | 'biz' | 'bizdev' | ux | 'operations'
      <dev> = 'dev' <'eloper'>?
      <sales> = 'sales' (<''> | <'man'> | <'woman'>)
      <ux> = 'ux'<' designer'>
