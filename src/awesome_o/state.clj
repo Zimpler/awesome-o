@@ -27,9 +27,8 @@
   (wcar* (car/get "state")))
 
 (defn update-state [fun]
-  (locks/with-lock redis-config "state-lock" 1000 1000
-    (let [state (get-state)]
-      (wcar* (car/set "state" (fun state))))))
+  (let [state (get-state)]
+    (wcar* (car/set "state" (fun state)))))
 
 (defn add-person [name]
   (update-state
