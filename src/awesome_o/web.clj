@@ -51,9 +51,7 @@
   ;; TODO: heroku config:add SESSION_SECRET=$RANDOM_16_CHARS
   (let [store (cookie/cookie-store {:key (env :session-secret)})]
     (-> app
-        ((if (env :production)
-           wrap-error-page
-           trace/wrap-stacktrace))
+        trace/wrap-stacktrace
         (site {:session {:store store}}))))
 
 (defn -main [& [port]]
