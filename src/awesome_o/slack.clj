@@ -38,7 +38,7 @@
 
 (defn mention [user-name text]
   {:status 200
-   :headers {"Content-Type" "application/json"}
+   :headers {"Content-Type" "application/json; charset=utf-8"}
    :body (json/generate-string
           {:text (bot/reply user-name text)
            :username "awesome-o"
