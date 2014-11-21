@@ -56,8 +56,9 @@
 (defn get-persons-key [key]
   (->> (get-state)
        :persons
+       (sort-by (comp :position second))
        (map (fn [[name person]] [name (person key)]))
-       (into {})))
+       (into (array-map))))
 
 (defn remove-person [name]
   (update-state
