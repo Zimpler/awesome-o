@@ -20,4 +20,4 @@
   :plugins [[environ/environ.lein "0.2.1"]]
   :hooks [environ.leiningen.hooks]
   :uberjar-name "awesome-o-standalone.jar"
-  :profiles {:production {:env {:production true}}})
+  :profiles {:production {:env {:production false}}})
