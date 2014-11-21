@@ -1,6 +1,7 @@
 (ns awesome-o.state
   (:require [taoensso.carmine :as car :refer (wcar)]
             [awesome-o.time :as time]
+            [taoensso.carmine.locks :as locks]
             [environ.core :refer [env]]))
 
 (defn redis-config []
@@ -26,8 +27,9 @@
   (wcar* (car/get "state")))
 
 (defn update-state [fun]
-  (let [state (get-state)]
-    (wcar* (car/set "state" (fun state)))))
+  (locks/with-lock redis-config "state-lock" 1000 1000
+    (let [state (get-state)]
+      (wcar* (car/set "state" (fun state))))))
 
 (defn add-person [name]
   (update-state
@@ -49,13 +51,13 @@
          (update-in state [:persons name] assoc key value)))))
 
 (defn get-person-key [name key]
- (get-in (get-state) [:persons name key]))
+  (get-in (get-state) [:persons name key]))
 
 (defn get-persons-key [key]
   (->> (get-state)
-      :persons
-      (map (fn [[name person]] [name (person key)]))
-      (into {})))
+       :persons
+       (map (fn [[name person]] [name (person key)]))
+       (into {})))
 
 (defn remove-person [name]
   (update-state
