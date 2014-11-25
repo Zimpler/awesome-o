@@ -117,11 +117,6 @@
 
 (def jobs ["dev" "sales" "biz" "bizdev" "ux"])
 
-(defn- job-key [job-name]
-  (str "persons-job-" job-name))
-
-(def ^:private job-keys (mapv job-key jobs))
-
 (defn remove-persons-job [name]
   (set-person-key name :team nil))
 
