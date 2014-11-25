@@ -96,6 +96,7 @@
      ["today"] (today)
      ["tomorrow"] (tomorrow)
      [[:weekday day]] (next-weekday (or start-date (today)) day)
+     [[:prev-weekday day]] (prev-weekday (or start-date (today)) day)
      [[:iso-date date]] (parse-date date))))
 
 (defn- normalize-period [data]
@@ -106,7 +107,7 @@
     [["tomorrow"]] {:from (normalize-date "tomorrow")
                     :to   (normalize-date "tomorrow")}
 
-    [["this week"]] {:from (normalize-date [:weekday "monday"])
+    [["this week"]] {:from (normalize-date [:prev-weekday "monday"])
                      :to   (normalize-date [:weekday "sunday"])}
 
     [["on" [:date date]]] (let [norm-date (normalize-date date)]
