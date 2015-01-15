@@ -53,6 +53,6 @@
     (when (time/monday-today?)
       (let [devs (shuffle (state/available-devs))
             meeting-master (pingify [(rand-nth devs)])
-            honeybadgers (->> devs (take 3) pingify)]
+            honeybadgers (->> devs (take 2) pingify)]
         (say (str "Honeydager monday! ping: " honeybadgers) :channel "dev")
         (say (str "Todays meeting master for dev this week is " meeting-master))))))
