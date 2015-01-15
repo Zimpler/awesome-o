@@ -18,30 +18,13 @@ launch from the command line:
     $ lein run -m awesome-o.web
 
 You'll need the [heroku toolbelt](https://toolbelt.herokuapp.com)
-installed to manage the heroku side of your app. Once it's installed,
-get the app created:
+installed to deploy awesome-o, aswell as either a heroku account of your own, or
+an SSH-key uploaded to the pugglepay account (under the address
+accounts@pugglepay.net)
 
-    $ heroku apps:create awesome-o
-    Creating awesome-o... done, stack is cedar
-    http://awesome-o.herokuapp.com/ | git@heroku.com:awesome-o.git
-    Git remote heroku added
-
-You can deploy the skeleton project immediately:
-
-    $ git push heroku master
-    Writing objects: 100% (13/13), 2.87 KiB, done.
-    Total 13 (delta 0), reused 0 (delta 0)
-
-    -----> Heroku receiving push
-    -----> Clojure app detected
-    -----> Installing Leiningen
-           Downloading: leiningen-2.0.0-preview7-standalone.jar
-    [...]
-    -----> Launching... done, v3
-           http://awesome-o.herokuapp.com deployed to Heroku
-
-    To git@heroku.com:awesome-o.git
-     * [new branch]      master -> master
+A guide to checking out the repository via the heroku cli, or adding the heroku
+remote to an existing repo checked out from github can be found here:
+https://devcenter.heroku.com/articles/git
 
 The cookie-backed session store needs a session secret configured for encryption:
 
