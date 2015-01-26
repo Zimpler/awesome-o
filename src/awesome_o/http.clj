@@ -8,7 +8,7 @@
 
 (defn post
   [token payload]
-  (http/post
-   url
-   {:query-params {:token token}
-    :form-params {:payload (json/generate-string payload)}}))
+  @(http/post
+    url
+    {:query-params {:token token}
+     :form-params {:payload (json/generate-string payload)}}))
