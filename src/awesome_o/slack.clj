@@ -37,12 +37,9 @@
                   text)))
 
 (defn mention [user-name text]
-  {:status 200
-   :headers {"Content-Type" "application/json; charset=utf-8"}
-   :body (json/generate-string
-          {:text (bot/reply user-name text)
-           :username "awesome-o"
-           :icon_emoji ":awesomeo:"})})
+  {:text (bot/reply user-name text)
+   :username "awesome-o"
+   :icon_emoji ":awesomeo:"})
 
 (defn ping []
   (when (and (time/working-hour?)

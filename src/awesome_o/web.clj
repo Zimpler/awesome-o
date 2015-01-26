@@ -23,6 +23,13 @@
       (session/wrap-session)
       (basic/wrap-basic-authentication authenticated?)))
 
+(defn- mention-handler
+  [user-name text]
+  (let [slack-response (slack/mention user-name text)]
+    {:status 200
+     :headers {"Content-Type" "application/json; charset=utf-8"}
+     :body (json/generate-string slack-response)}) )
+
 (defroutes app
   (ANY "/repl" {:as req}
     (drawbridge req))
@@ -35,7 +42,7 @@
     (slack/announcement user_name text)
     {:status 200 :body ""})
   (POST "/mention" {{:keys [text user_name]} :params}
-    (slack/mention user_name text))
+    (mention-handler user_name text))
   (ANY "*" []
     (route/not-found (slurp (io/resource "404.html")))))
 
