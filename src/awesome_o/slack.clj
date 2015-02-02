@@ -1,16 +1,10 @@
 (ns awesome-o.slack
-  (:require [org.httpkit.client :as http]
-            [cheshire.core :as json]
-            [awesome-o.bot :as bot]
+  (:require [awesome-o.bot :as bot]
             [awesome-o.state :as state]
             [awesome-o.time :as time]
+            [awesome-o.http :as http]
             [clojure.string :as string]
             [environ.core :refer [env]]))
-
-(defn- post [token payload]
-  (http/post "https://pugglepay.slack.com/services/hooks/incoming-webhook"
-             {:query-params {:token token}
-              :form-params {:payload (json/generate-string payload)}}))
 
 (defn- channel->token [channel]
   (case channel
@@ -25,29 +19,38 @@
   [people]
   (string/join ", " (map (partial str "@") people)))
 
-
 (defn say [stuff & {:keys [channel username emoji]}]
-  (post (channel->token (or channel "general"))
-        {:text stuff
-         :username (or username "awesome-o")
-         :icon_emoji (or emoji ":awesomeo:")}))
+  (http/post (channel->token (or channel "general"))
+             {:text stuff
+              :username (or username "awesome-o")
+              :icon_emoji (or emoji ":awesomeo:")}))
+
+(defn- select-next-slackmaster
+  [& {:keys [changed-from]}]
+  (say
+   (str
+    (when changed-from
+      (str changed-from " was slackmaster but is away, therefore:\n"))
+    (bot/react [:select-next-slackmaster]))
+   :channel "general"))
 
 (defn announcement [user-name text]
   (say (str "@everyone: new announcement from " user-name ":\n"
                   text)))
 
 (defn mention [user-name text]
-  {:status 200
-   :headers {"Content-Type" "application/json; charset=utf-8"}
-   :body (json/generate-string
-          {:text (bot/reply user-name text)
-           :username "awesome-o"
-           :icon_emoji ":awesomeo:"})})
+  (let [slack-master (state/get-slackmaster)
+        text-response (bot/reply user-name text)]
+    (when (and slack-master (not (state/get-slackmaster)))
+      (select-next-slackmaster :changed-from slack-master))
+    {:text text-response
+     :username "awesome-o"
+     :icon_emoji ":awesomeo:"}))
 
 (defn ping []
   (when (and (time/working-hour?)
              (state/acquire-daily-announcement))
-    (say (bot/react [:select-next-slackmaster]))
+    (select-next-slackmaster)
     (doseq [person (state/persons-born-today)]
       (say (format "Today is @%s's birthday! Happy birthday!" person)))
     (when (time/monday-today?)

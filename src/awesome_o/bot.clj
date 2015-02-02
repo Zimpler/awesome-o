@@ -107,10 +107,7 @@
   (do (state/add-period-away person period)
       (str "OK, now I know " person
            " will be away from " (period :from)
-           " to " (period :to)
-           (when-not (state/get-slackmaster)
-             (str "\n" person " was slackmaster but is away, therefore:\n"
-                  (react [:select-next-slackmaster]))))))
+           " to " (period :to))))
 
 (defmethod react :get-schedule
   [[_ {:keys [person]}]]
