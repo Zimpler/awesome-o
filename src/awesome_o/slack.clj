@@ -55,7 +55,8 @@
       (say (format "Today is @%s's birthday! Happy birthday!" person)))
     (when (time/monday-today?)
       (let [devs (shuffle (state/available-devs))
-            meeting-master (pingify [(rand-nth devs)])
+            gbgs (shuffle (state/get-available-people-in-location "göteborg"))
+            meeting-master (pingify [(rand-nth gbgs)])
             honeybadgers (->> devs (take 2) pingify)]
         (say (str "Honeydager monday! ping: " honeybadgers) :channel "dev")
-        (say (str "Todays meeting master for dev this week is " meeting-master))))))
+        (say (str "Todays meeting master for gothenburg this week is " meeting-master))))))
