@@ -16,6 +16,8 @@
 (defn- ismember? [key value]
   (pos? (wcar* (car/sismember key value))))
 
+(declare away?)
+
 (defn reset-state []
   (wcar* (car/set "state"
                   {:persons {}
@@ -98,7 +100,6 @@
 (defn get-persons-locations []
   (get-persons-key :location))
 
-
 (defn add-location [location]
   (update-state
    (fn [state]
@@ -114,6 +115,11 @@
 (defn get-locations []
   (get (get-state) :locations))
 
+(defn get-available-people-in-location [target-location]
+  (for [[person location] (get-persons-locations)
+        :when (= location target-location)
+        :when (not (away? person))]
+    person))
 
 (def jobs ["dev" "sales" "biz" "bizdev" "ux"])
 
@@ -143,11 +149,11 @@
 (defn reset-periods-away [name]
   (set-person-key name :away []))
 
-(defn is-away [person]
+(defn away? [person]
   (some time/active-period (get-periods-away person)))
 
 (defn available-devs []
-  (remove is-away (get-job-persons "dev")))
+  (remove away? (get-job-persons "dev")))
 
 (defn reset-slackmaster []
   (update-state
@@ -160,7 +166,7 @@
   (let [slackmaster
         (nth (cycle (get-job-persons "dev"))
              (get-slackmaster-index))]
-    (when-not (is-away slackmaster)
+    (when-not (away? slackmaster)
       slackmaster)))
 
 (defn select-next-slackmaster []
