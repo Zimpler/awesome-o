@@ -114,11 +114,6 @@
 (defn get-locations []
   (get (get-state) :locations))
 
-(defn get-available-people-in-location [target-location]
-  (for [[person location] (get-persons-locations)
-        :when (= location target-location)
-        :when (not (is-away person))]
-    person))
 
 (def jobs ["dev" "sales" "biz" "bizdev" "ux"])
 
