@@ -11,6 +11,8 @@ This generated project has a few basics set up beyond the bare Compojure default
 
 ## Usage
 
+To run unit tests, start `redis-server` and then run `lein test`.
+
 To start a local web server for development you can either eval the
 commented out forms at the bottom of `web.clj` from your editor or
 launch from the command line:

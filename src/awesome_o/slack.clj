@@ -11,14 +11,6 @@
     "general" (env :slack-general-token "")
     "dev" (env :slack-dev-token "")))
 
-(defn- pingify
-  "takes a list of people and creates
-   a string like in the example
-   (pingify [\"lars\" \"magnus\"])
-   => \"@lars, @magnus\""
-  [people]
-  (string/join ", " (map (partial str "@") people)))
-
 (defn say [stuff & {:keys [channel username emoji]}]
   (http/post (channel->token (or channel "general"))
              {:text stuff
@@ -33,6 +25,23 @@
       (str changed-from " was slackmaster but is away, therefore:\n"))
     (bot/react [:select-next-slackmaster]))
    :channel "general"))
+
+(def ^:private pingify (partial str "@"))
+
+(defn- monday-announcements []
+  (let [devs (shuffle (state/available-devs))
+        gbgs (shuffle (state/get-available-people-in-location "göteborg"))
+        meeting-master (pingify (rand-nth gbgs))
+        honeybadgers (->> devs (take 2) (map pingify) (string/join ", "))]
+    (say (str "Honeydager monday! ping: " honeybadgers) :channel "dev")
+    (say (str "Todays meeting master for dev this week is " meeting-master))))
+
+(defn random-meeting []
+  (let [gbgs (state/get-available-people-in-location "göteborg")
+        gbg (pingify (rand-nth gbgs))
+        sthlms (state/get-available-people-in-location "stockholm")
+        sthlm (pingify (rand-nth sthlms))]
+    (say (str "Today's random meeting is between " gbg " and " sthlm))))
 
 (defn announcement [user-name text]
   (say (str "@everyone: new announcement from " user-name ":\n"
@@ -53,10 +62,5 @@
     (select-next-slackmaster)
     (doseq [person (state/persons-born-today)]
       (say (format "Today is @%s's birthday! Happy birthday!" person)))
-    (when (time/monday-today?)
-      (let [devs (shuffle (state/available-devs))
-            gbgs (shuffle (state/get-available-people-in-location "göteborg"))
-            meeting-master (pingify [(rand-nth gbgs)])
-            honeybadgers (->> devs (take 2) pingify)]
-        (say (str "Honeydager monday! ping: " honeybadgers) :channel "dev")
-        (say (str "Todays meeting master for dev this week is " meeting-master))))))
+    (when (time/monday-today?) monday-announcements)
+    (random-meeting)))

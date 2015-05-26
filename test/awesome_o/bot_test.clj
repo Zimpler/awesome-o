@@ -16,8 +16,11 @@
   (state/add-person test-user)
   (state/add-person "patrik")
   (state/set-persons-job test-user "dev")
+  (state/add-person "kristoffer")
   (state/add-location "stockholm")
   (state/add-location "göteborg")
+  (state/set-persons-location test-user "göteborg")
+  (state/set-persons-location "kristoffer" "stockholm")
   (f))
 
 (def sent-to-slack (atom []))
@@ -34,7 +37,7 @@
 
 (use-fixtures :each setup-redis rebind-post)
 
-(deftest integration-test
+(deftest mention-test
   (is (= (mention "anders is a puggle")
          "OK, nice to meet you @anders!"))
 
@@ -125,3 +128,8 @@
   (is (= @sent-to-slack
          ["jean-louis was slackmaster but is away, therefore:\n@anders is today's slackmaster"
           "anders was slackmaster but is away, therefore:\nTHERE IS NO DEV! OMG RUN FOR YOUR LIFE!!"])))
+
+(deftest random-meeting-test
+  (do (slack/random-meeting)
+      (is (= (first @sent-to-slack)
+            "Today's random meeting is between @jean-louis and @kristoffer"))))
