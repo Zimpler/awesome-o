@@ -15,9 +15,7 @@
                  [com.taoensso/carmine "2.7.0"]
                  [clj-time "0.8.0"]
                  [org.clojure/core.match "0.2.1"]
-                 [com.cemerick/drawbridge "0.0.6"]
-                 [spyscope "0.1.5"]]
-  :injections [(require 'spyscope.core)]
+                 [com.cemerick/drawbridge "0.0.6"]]
   :min-lein-version "2.0.0"
   :plugins [[environ/environ.lein "0.2.1"]]
   :hooks [environ.leiningen.hooks]
