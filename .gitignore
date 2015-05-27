@@ -11,3 +11,4 @@ pom.xml
 /.nrepl-port
 /.lein-repl-history
 /state.clj
+dump.rdb

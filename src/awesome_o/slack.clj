@@ -36,7 +36,7 @@
     (say (str "Honeydager monday! ping: " honeybadgers) :channel "dev")
     (say (str "Todays meeting master for dev this week is " meeting-master))))
 
-(defn random-meeting []
+(defn- random-meeting []
   (let [gbgs (state/get-available-people-in-location "göteborg")
         gbg (pingify (rand-nth gbgs))
         sthlms (state/get-available-people-in-location "stockholm")
@@ -62,5 +62,5 @@
     (select-next-slackmaster)
     (doseq [person (state/persons-born-today)]
       (say (format "Today is @%s's birthday! Happy birthday!" person)))
-    (when (time/monday-today?) monday-announcements)
+    (when (time/monday-today?) (monday-announcements))
     (random-meeting)))

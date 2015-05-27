@@ -15,6 +15,8 @@
   (state/add-person "magnus")
   (state/add-person test-user)
   (state/add-person "patrik")
+  (state/set-birthday "patrik" today)
+  (state/set-persons-job "patrik" "dev")
   (state/set-persons-job test-user "dev")
   (state/add-person "kristoffer")
   (state/add-location "stockholm")
@@ -27,9 +29,10 @@
 
 (defn- rebind-post [f]
   (reset! sent-to-slack [])
-  (with-redefs [http/post
-                (fn [token payload]
-                  (swap! sent-to-slack conj (:text payload)))]
+  (with-redefs
+      [http/post (fn [token payload] (swap! sent-to-slack conj (:text payload)))
+      shuffle identity
+      rand-nth first]
     (f)))
 
 (defn- mention [text]
@@ -42,7 +45,7 @@
          "OK, nice to meet you @anders!"))
 
   (is (= (mention "who is part of the dev team?")
-         "The dev team: jean-louis"))
+         "The dev team: jean-louis, patrik"))
 
   (is (= (mention "who is anders?")
          "anders is a puggle"))
@@ -51,7 +54,7 @@
          "OK, now I know anders is part of the dev team"))
 
   (is (= (mention "who is part of the dev team?")
-         "The dev team: jean-louis, anders"))
+         "The dev team: jean-louis, patrik, anders"))
 
   (is (= (mention "who is anders?")
          "anders is a puggle part of the dev team"))
@@ -83,8 +86,16 @@
   (is (= (mention "I'm away today")
          (str "OK, now I know jean-louis will be away from " today " to " today)))
 
+  (is (= (mention "patrik is away today")
+         (str "OK, now I know patrik will be away from " today " to " today)))
+
   (is (= (mention "anders is away today")
          (str "OK, now I know anders will be away from " today " to " today)))
+
+  (is (= (into [] (take 3 @sent-to-slack))
+        ["jean-louis was slackmaster but is away, therefore:\n@patrik is today's slackmaster"
+          "patrik was slackmaster but is away, therefore:\n@anders is today's slackmaster"
+          "anders was slackmaster but is away, therefore:\nTHERE IS NO DEV! OMG RUN FOR YOUR LIFE!!"]))
 
   (is (= (mention "clear my schedule")
          "OK, I've cleared jean-louis's schedule"))
@@ -123,13 +134,37 @@
          "OK, I've forgotten everything about anders"))
 
   (is (= (mention "who is part of the dev team?")
-         "The dev team: jean-louis"))
+         "The dev team: jean-louis, patrik")))
 
-  (is (= @sent-to-slack
-         ["jean-louis was slackmaster but is away, therefore:\n@anders is today's slackmaster"
-          "anders was slackmaster but is away, therefore:\nTHERE IS NO DEV! OMG RUN FOR YOUR LIFE!!"])))
+(deftest ping-test-non-working
+  (testing "non-working hours - does nothing"
+    (with-redefs
+        [time/working-hour? (constantly false)]
+      (slack/ping))
+    (is (= [] @sent-to-slack))))
 
-(deftest random-meeting-test
-  (do (slack/random-meeting)
-      (is (= (first @sent-to-slack)
-            "Today's random meeting is between @jean-louis and @kristoffer"))))
+(deftest ping-test-regular-workday
+  (testing "regular workday - does daily announcements"
+    (with-redefs
+        [time/working-hour? (constantly true)
+        time/monday-today? (constantly false)
+        state/acquire-daily-announcement (constantly true)]
+      (slack/ping))
+    (is (into [] (take 3 @sent-to-slack))
+      ["@patrik is today's slackmaster"
+      "Today is @patrik's birthday! Happy birthday!"
+      "Today's random meeting is between @jean-louis and @kristoffer"])))
+
+(deftest ping-test-monday
+  (testing "a working hour monday - sends all announcements"
+    (with-redefs
+        [time/working-hour? (constantly true)
+        time/monday-today? (constantly true)
+        state/acquire-daily-announcement (constantly true)]
+      (slack/ping))
+    (is (= (into [] (take 5 @sent-to-slack))
+      ["@patrik is today's slackmaster",
+      "Today is @patrik's birthday! Happy birthday!"
+      "Honeydager monday! ping: @jean-louis, @patrik"
+      "Todays meeting master for dev this week is @jean-louis"
+      "Today's random meeting is between @jean-louis and @kristoffer"]))))
