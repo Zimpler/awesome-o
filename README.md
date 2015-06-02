@@ -1,4 +1,5 @@
 # awesome-o
+[![Build Status](https://travis-ci.org/PugglePay/awesome-o.svg)](https://travis-ci.org/PugglePay/awesome-o)
 
 A [Heroku](http://www.heroku.com) web app using Compojure.
 
