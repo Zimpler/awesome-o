@@ -1,1 +1,3 @@
 language: clojure
+services:
+  - redis-server
