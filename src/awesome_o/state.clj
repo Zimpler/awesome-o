@@ -75,7 +75,7 @@
   (get-person-key name :birthday))
 
 (defn get-birthdays []
-  (get-persons-key :birthday))
+  (filter (fn [[_ date]] (some? date)) (get-persons-key :birthday)))
 
 (defn remove-birthday [name]
   (set-person-key name :birthday nil))
