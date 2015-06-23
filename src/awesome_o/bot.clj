@@ -38,8 +38,8 @@
 (defmethod react :declare-person
   [[_ {:keys [word person]}]]
   (let [name (or word person)]
-    (do (state/add-person name)
-        (str "OK, nice to meet you @" name "!"))))
+    (state/add-person name)
+    (str "OK, nice to meet you @" name "!")))
 
 (defmethod react :forget-person
   [[_ {:keys [person]}]]

@@ -137,26 +137,26 @@
          "The dev team: jean-louis, patrik")))
 
 (deftest ping-test-non-working
- (testing "non-working hours - does nothing"
-   (with-redefs
-    [time/working-hour? (constantly false)]
-     (slack/ping))
-   (is (= [] @sent-to-slack))))
+  (testing "non-working hours - does nothing"
+    (with-redefs
+     [time/working-hour? (constantly false)]
+      (slack/ping))
+    (is (= [] @sent-to-slack))))
 
- (deftest ping-test-monday
-   (testing "a working hour monday - sends all announcements"
-     (with-redefs
-      [time/working-hour? (constantly true)
-       time/monday-today? (constantly true)
-       time/wednesday-today? (constantly false)
-       time/friday-today? (constantly false)
-       state/acquire-daily-announcement (constantly true)]
-       (slack/ping))
-     (is (= @sent-to-slack
-            ["@patrik is today's slackmaster",
-             "Today is @patrik's birthday! Happy birthday!"
-             "Honeydager monday! ping: @jean-louis, @patrik"
-             "Todays meeting master for dev this week is @jean-louis"]))))
+(deftest ping-test-monday
+  (testing "a working hour monday - sends all announcements"
+    (with-redefs
+     [time/working-hour? (constantly true)
+      time/monday-today? (constantly true)
+      time/wednesday-today? (constantly false)
+      time/friday-today? (constantly false)
+      state/acquire-daily-announcement (constantly true)]
+      (slack/ping))
+    (is (= @sent-to-slack
+           ["@patrik is today's slackmaster",
+            "Today is @patrik's birthday! Happy birthday!"
+            "Honeydager monday! ping: @jean-louis, @patrik"
+            "Todays meeting master for dev this week is @jean-louis"]))))
 
 (deftest ping-test-tuesday-thursday
   (testing "tuesday and thursday - does daily announcements"
