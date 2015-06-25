@@ -63,4 +63,4 @@
     (doseq [person (state/persons-born-today)]
       (say (format "Today is @%s's birthday! Happy birthday!" person)))
     (when (time/monday-today?) (monday-announcements))
-    (random-meeting)))
+    (when (or (time/wednesday-today?) (time/friday-today?)) (random-meeting))))

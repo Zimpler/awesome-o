@@ -29,6 +29,12 @@
 (defn monday-today? []
   (monday? (today)))
 
+(defn wednesday-today? []
+  (wednesday? (today)))
+
+(defn friday-today? []
+  (friday? (today)))
+
 (defn next-day [date]
   (time/plus date (days 1)))
 
@@ -87,7 +93,6 @@
   (if (pred date)
     date
     (recur (time/minus date (days 1)) pred)))
-
 
 (defn- weekday-predicate [weekday]
   (resolve (symbol (str "clj-time.predicates/" weekday "?"))))
