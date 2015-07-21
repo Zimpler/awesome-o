@@ -3,21 +3,21 @@
   :url "http://awesome-o.herokuapp.com"
   :license {:name "FIXME: choose"
             :url "http://example.com/FIXME"}
-  :dependencies [[org.clojure/clojure "1.6.0"]
-                 [compojure "1.1.8"]
-                 [ring/ring-jetty-adapter "1.2.2"]
-                 [ring/ring-devel "1.2.2"]
+  :dependencies [[org.clojure/clojure "1.7.0"]
+                 [compojure "1.4.0"]
+                 [ring/ring-jetty-adapter "1.4.0"]
+                 [ring/ring-devel "1.4.0"]
                  [ring-basic-authentication "1.0.5"]
-                 [environ "0.5.0"]
-                 [http-kit "2.1.16"]
-                 [cheshire "5.3.1"]
-                 [instaparse "1.3.4"]
-                 [com.taoensso/carmine "2.7.0"]
-                 [clj-time "0.8.0"]
-                 [org.clojure/core.match "0.2.1"]
-                 [com.cemerick/drawbridge "0.0.6"]]
+                 [environ "1.0.0"]
+                 [http-kit "2.1.19"]
+                 [cheshire "5.5.0"]
+                 [instaparse "1.4.1"]
+                 [com.taoensso/carmine "2.11.1"]
+                 [clj-time "0.10.0"]
+                 [org.clojure/core.match "0.3.0-alpha4"]
+                 [com.cemerick/drawbridge "0.0.7"]]
   :min-lein-version "2.0.0"
-  :plugins [[environ/environ.lein "0.2.1"]]
-  :hooks [environ.leiningen.hooks]
+  :plugins [[lein-environ "1.0.0"]]
   :uberjar-name "awesome-o-standalone.jar"
-  :profiles {:production {:env {:production false}}})
+  :profiles {:dev {:dependencies [[org.clojure/tools.nrepl "0.2.10"]]}
+             :production {:env {:production false}}})
