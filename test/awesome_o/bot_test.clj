@@ -19,8 +19,6 @@
   (state/set-persons-job "patrik" "dev")
   (state/set-persons-job test-user "dev")
   (state/add-person "kristoffer")
-  (state/add-location "stockholm")
-  (state/add-location "göteborg")
   (state/set-persons-location test-user "göteborg")
   (state/set-persons-location "kristoffer" "stockholm")
   (f))
@@ -50,7 +48,7 @@
   (is (= (mention "who is anders?")
          "anders is a puggle"))
 
-  (is (= (mention "anders is a developer")
+  (is (= (mention "anders is in the dev team")
          "OK, now I know anders is part of the dev team"))
 
   (is (= (mention "who is part of the dev team?")
@@ -59,14 +57,11 @@
   (is (= (mention "who is anders?")
          "anders is a puggle part of the dev team"))
 
-  (is (= (mention "barcelona is a location")
-         "OK, now I now that barcelona is a location"))
-
-  (is (= (mention "anders is in barcelona")
-         "OK, now I know that anders is in barcelona"))
+  (is (= (mention "anders is in göteborg")
+         "OK, now I know that anders is in göteborg"))
 
   (is (= (mention "who is anders?")
-         "anders is a puggle part of the dev team located at the barcelona office"))
+         "anders is a puggle part of the dev team located at the göteborg office"))
 
   (is (= (mention "anders is born on 1980-01-01")
          "OK, now I know anders is born on 1980-01-01"))
@@ -112,16 +107,16 @@
   (is (= (mention "lisa is a puggle")
          "OK, nice to meet you @lisa!"))
 
-  (is (= (mention "lisa is a ux designer")
-         "OK, now I know lisa is part of the ux team"))
+  (is (= (mention "lisa is in the design team")
+         "OK, now I know lisa is part of the design team"))
 
   (is (= (mention "who is lisa?")
-         "lisa is a puggle part of the ux team"))
+         "lisa is a puggle part of the design team"))
 
   (is (= (mention "johan is a puggle")
          "OK, nice to meet you @johan!"))
 
-  (is (= (mention "johan is a salesman")
+  (is (= (mention "johan is in the sales team")
          "OK, now I know johan is part of the sales team"))
 
   (is (= (mention "who is part of the sales team?")

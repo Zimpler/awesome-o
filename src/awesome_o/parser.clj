@@ -12,14 +12,13 @@
     (string/join " | " (map #(str "'" % "'") data))
     "epsilon"))
 
-(defn- dialogue [persons locations]
+(defn- dialogue [persons locations jobs]
   (insta/parser
    (str
     "<mention> = (<'awesome-o'> | <'awesomeo'> | <'awesomo'> | <'bot'> | <'test'>) <' '> dialogue
      <dialogue> = help / get-slackmaster / select-next-slackmaster /
-                  set-job / set-birthday /
-                  get-birthday / set-away / set-location /
-                  get-location / declare-location /
+                  set-job / set-birthday / get-birthday /
+                  set-away / set-location / get-location /
                   get-schedule / reset-schedule / declare-person /
                   forget-person / list-team / who-is
 
@@ -33,8 +32,7 @@
 
      forget-person = <'forget about '> person
 
-     set-job = someone <to-be> (<' a '> | <' part of '>) job |
-               someone <to-be> <' part of the '> job <' team'>
+     set-job = someone <' is in the '> job <' team'>
 
      list-team = <'who is part of the '> job <' team'> |
                  <'who is part of '> job
@@ -44,8 +42,6 @@
      set-location = someone <to-be> <' in '> location
 
      get-location = <'where'> <to-be> <' '> someone
-
-     declare-location = word <' is a '> (<'place'> | <'location'>)
 
      set-birthday = <'the birthday of '> person <' is '> date |
                     myself <' birthday is '> date |
@@ -67,10 +63,7 @@
 
      to-be = <' is'> | <' am'> | <' was'> | <'\\'m'> | <'\\'s'> | <' will be'> | <'\\'ll be'>
 
-     job = dev | sales | 'biz' | 'bizdev' | ux | 'operations'
-     <dev> = 'dev' <'eloper'>?
-     <sales> = 'sales' (<''> | <'man'> | <'woman'>)
-     <ux> = 'ux'<' designer'>
+     job = " (->string-list jobs) "
 
      myself = <'myself'> / <'my'> / <'me'> / <'i'>
      everybody = <'everybody'> | <'everyone'>
@@ -149,8 +142,8 @@
 (defn success? [result]
   (not (insta/failure? result)))
 
-(defn parse [{:keys [myself persons locations]} text]
-  (let [result (insta/parse (dialogue persons locations)
+(defn parse [{:keys [myself persons locations jobs]} text]
+  (let [result (insta/parse (dialogue persons locations jobs)
                             (cleanup text))]
     (if (insta/failure? result)
       result

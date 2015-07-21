@@ -19,9 +19,8 @@
                ["You can tell me one of the following:"
                 " - I'm a puggle"
                 " - person is a puggle"
-                " - person is a dev"
+                " - person is in the dev team"
                 " - who is person?"
-                " - location is a location"
                 " - person is in location"
                 " - where is person?"
                 " - person was born on 1980-01-01"
@@ -52,11 +51,6 @@
     (if (seq members)
       (str "The " job " team: " (string/join ", " members))
       (str "THERE IS NO " (string/upper-case job) ", RUN FOR YOUR LIFE!!"))))
-
-(defmethod react :declare-location
-  [[_ {:keys [word]}]]
-  (do (state/add-location word)
-      (str "OK, now I now that " word " is a location")))
 
 (defmethod react :set-location
   [[_ {:keys [person location]}]]
@@ -137,10 +131,12 @@
 
 (defn reply [user-name text]
   (let [persons (state/get-names)
-        locations (state/get-locations)
+        locations state/locations
+        jobs      state/jobs
         parse-result (parser/parse {:myself user-name
                                     :persons persons
-                                    :locations locations}
+                                    :locations locations
+                                    :jobs jobs}
                                    text)]
     (cond
      (parser/success? parse-result) (react parse-result)

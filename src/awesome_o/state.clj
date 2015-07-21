@@ -21,9 +21,7 @@
 (defn reset-state []
   (wcar* (car/set "state"
                   {:persons {}
-                   :locations []
-                   :slackmasters-index 0
-                   :dev-meeting-index 0})))
+                   :slackmasters-index 0})))
 
 (defn- get-state []
   (wcar* (car/get "state")))
@@ -100,19 +98,15 @@
 (defn get-persons-locations []
   (get-persons-key :location))
 
-(defn add-location [location]
-  (update-in-state [:locations] conj location))
-
-(defn get-locations []
-  (get (get-state) :locations))
-
 (defn get-available-people-in-location [target-location]
   (for [[person location] (get-persons-locations)
         :when (= location target-location)
         :when (not (away? person))]
     person))
 
-(def jobs ["dev" "sales" "biz" "bizdev" "ux"])
+(def locations ["stockholm" "göteborg"])
+
+(def jobs ["dev" "sales" "biz" "bizdev" "design"])
 
 (defn remove-persons-job [name]
   (set-person-key name :team nil))
