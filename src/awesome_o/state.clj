@@ -25,12 +25,15 @@
                    :slackmasters-index 0
                    :dev-meeting-index 0})))
 
-(defn get-state []
+(defn- get-state []
   (wcar* (car/get "state")))
 
-(defn update-state [fun]
+(defn- update-state [fun]
   (let [state (get-state)]
     (wcar* (car/set "state" (fun state)))))
+
+(defn- update-in-state [ks f & args]
+  (update-state (fn [state] (apply update-in state ks f args))))
 
 (defn add-person [name]
   (update-state
@@ -45,16 +48,14 @@
                     :away []
                     :position (+ last-position 1)}))))))
 
-(defn set-person-key [name key value]
+(defn- set-person-key [name key value]
   (do (add-person name)
-      (update-state
-       (fn [state]
-         (update-in state [:persons name] assoc key value)))))
+  (update-in-state [:persons name] assoc key value)))
 
-(defn get-person-key [name key]
+(defn- get-person-key [name key]
   (get-in (get-state) [:persons name key]))
 
-(defn get-persons-key [key]
+(defn- get-persons-key [key]
   (->> (get-state)
        :persons
        (sort-by (comp :position second))
@@ -62,8 +63,7 @@
        (into (array-map))))
 
 (defn remove-person [name]
-  (update-state
-   (fn [state] (update-in state [:persons] dissoc name))))
+  (update-in-state [:persons] dissoc name))
 
 (defn get-names []
   (-> (get-state) :persons keys))
@@ -101,16 +101,7 @@
   (get-persons-key :location))
 
 (defn add-location [location]
-  (update-state
-   (fn [state]
-     (update-in state [:locations] conj location))))
-
-(defn remove-location [location]
-  (update-state
-   (fn [state]
-     (update-in state [:locations]
-                (fn [locations]
-                  (vec (remove #{location} locations)))))))
+  (update-in-state [:locations] conj location))
 
 (defn get-locations []
   (get (get-state) :locations))
@@ -137,11 +128,8 @@
        (filter (fn [[name j]] (= j job)))
        (map first)))
 
-
 (defn add-period-away [name period]
-  (update-state
-   (fn [state]
-     (update-in state [:persons name :away] conj period))))
+  (update-in-state [:persons name :away] conj period))
 
 (defn get-periods-away [name]
   (get-person-key name :away))
@@ -171,9 +159,7 @@
 
 (defn select-next-slackmaster []
   (do
-    (update-state
-     (fn [state]
-       (update-in state [:slackmasters-index] inc)))
+    (update-in-state [:slackmasters-index] inc)
     (if-let [dev (get-slackmaster)]
       dev
       (when (seq (available-devs))
