@@ -6,7 +6,7 @@
 
 (defn redis-config []
   {:pool {}
-   :spec {:uri (env :redistogo-url "redis:://localhost:6379")}})
+   :spec {:uri (env :redistogo-url "redis://localhost:6379")}})
 
 (defmacro wcar* [& body] `(car/wcar (redis-config) ~@body))
 
