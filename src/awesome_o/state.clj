@@ -21,10 +21,14 @@
 (defn reset-state []
   (wcar* (car/set "state"
                   {:persons {}
-                   :task-assignments {:slack-master nil}})))
+                   :task-assignments {:slackmaster nil
+                                      :meetingmaster nil}})))
 
 (defn- get-state []
   (wcar* (car/get "state")))
+
+(defn- get-in-state [ks]
+  (get-in (get-state) ks))
 
 (defn- update-state [fun]
   (let [state (get-state)]
@@ -51,7 +55,7 @@
   (update-in-state [:persons name] assoc key value)))
 
 (defn- get-person-key [name key]
-  (get-in (get-state) [:persons name key]))
+  (get-in-state [:persons name key]))
 
 (defn- get-persons-key [key]
   (->> (get-state)
@@ -130,15 +134,29 @@
        (mapv first)
        rand-nth))
 
+(defn random-person-with-job [job]
+  (->> (get-job-persons job)
+       (remove away?)
+       (into [])
+       rand-nth))
+
 (defn select-next-slackmaster []
   (update-in-state [:task-assignments]
-                   assoc :slackmaster
-                         (first (draw-people-from-job "dev" :number 1))))
+                   assoc :slackmaster (random-person-with-job "dev")))
 
 (defn get-slackmaster []
-  (or (get-in (get-state) [:task-assignments :slackmaster])
+  (or (get-in-state [:task-assignments :slackmaster])
       (do (select-next-slackmaster)
-          (get-in (get-state) [:task-assignments :slackmaster]))))
+          (get-in-state [:task-assignments :slackmaster]))))
+
+(defn select-next-meetingmaster []
+  (update-in-state [:task-assignments]
+                   assoc :meetingmaster (random-person-with-job "dev")))
+
+(defn get-meetingmaster []
+  (or (get-in-state [:task-assignments :meetingmaster])
+      (do (select-next-meetingmaster)
+          (get-in-state [:task-assignments :meetingmaster]))))
 
 (defn reset-daily-announcement []
   (wcar* (car/set (str "daily-announcement-"

@@ -29,9 +29,7 @@
 (def ^:private pingify (partial str "@"))
 
 (defn- monday-announcements []
-  (let [meeting-master (->> (state/draw-people-from-job "dev" :number 1)
-                            first
-                            pingify)
+  (let [meeting-master (pingify (state/random-person-with-job "dev"))
         honeybadgers (->> (state/draw-people-from-job "dev" :number 2)
                           (map pingify)
                           (string/join ", "))]

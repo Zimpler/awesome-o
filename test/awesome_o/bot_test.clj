@@ -78,14 +78,23 @@
   (is (= (mention "who is slackmaster?")
          "@jean-louis is today's slackmaster"))
 
+  (is (= (mention "who is the meeting master?")
+         "@jean-louis is today's meetingmaster"))
+
   (is (= (mention "I'm away today")
          (str "OK, now I know jean-louis will be away from " today " to " today)))
+
+  (is (= (mention "select the next meetingmaster")
+         "@patrik is today's meetingmaster"))
 
   (is (= (mention "patrik is away today")
          (str "OK, now I know patrik will be away from " today " to " today)))
 
   (is (= (mention "anders is away today")
          (str "OK, now I know anders will be away from " today " to " today)))
+
+  (is (= (mention "select the next meetingmaster")
+         "THERE IS NO DEV! OMG RUN FOR YOUR LIFE!!"))
 
   (is (= @sent-to-slack
          ["jean-louis was slackmaster but is away, therefore:\n@patrik is today's slackmaster"
