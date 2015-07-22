@@ -13,6 +13,9 @@ This generated project has a few basics set up beyond the bare Compojure default
 ## Usage
 
 To run unit tests, start `redis-server` and then run `lein test`.
+You can also run `lein auto test` for ongoing unit testing every time
+you change a file. For interactive development start `lein repl`,
+which uses `org.clojure/tools.namespace` to assist reloading the code.
 
 To start a local web server for development you can either eval the
 commented out forms at the bottom of `web.clj` from your editor or
