@@ -26,15 +26,22 @@
     (bot/react [:select-next-slackmaster]))
    :channel "general"))
 
+(defn- select-next-meetingmaster
+  [& {:keys [changed-from]}]
+  (say
+   (str
+    (when changed-from
+      (str changed-from " was meetingmaster but is away, therefore:\n"))
+    (bot/react [:select-next-meetingmaster]))
+   :channel "general"))
+
 (def ^:private pingify (partial str "@"))
 
-(defn- monday-announcements []
-  (let [meeting-master (pingify (state/random-person-with-job "dev"))
-        honeybadgers (->> (state/draw-people-from-job "dev" :number 2)
+(defn- select-honeybadgers []
+  (let [honeybadgers (->> (state/draw-people-from-job "dev" :number 2)
                           (map pingify)
                           (string/join ", "))]
-    (say (str "Honeydager monday! ping: " honeybadgers) :channel "dev")
-    (say (str "Todays meeting master for dev this week is " meeting-master))))
+    (say (str "Honeydager monday! ping: " honeybadgers) :channel "dev")))
 
 (defn- random-meeting []
   (let [gbg (pingify (state/random-person-from-location "göteborg"))
@@ -46,10 +53,13 @@
                   text)))
 
 (defn mention [user-name text]
-  (let [slack-master (state/get-slackmaster)
-        text-response (bot/reply user-name text)]
+  (let [slack-master    (state/get-slackmaster)
+        meeting-master  (state/get-meetingmaster)
+        text-response   (bot/reply user-name text)]
     (when (state/away? slack-master)
       (select-next-slackmaster :changed-from slack-master))
+    (when (state/away? meeting-master)
+      (select-next-meetingmaster :changed-from meeting-master))
     {:text text-response
      :username "awesome-o"
      :icon_emoji ":awesomeo:"}))
@@ -60,5 +70,7 @@
     (select-next-slackmaster)
     (doseq [person (state/persons-born-today)]
       (say (format "Today is @%s's birthday! Happy birthday!" person)))
-    (when (time/monday-today?) (monday-announcements))
+    (when (time/monday-today?)
+      (select-honeybadgers)
+      (select-next-meetingmaster))
     (when (or (time/wednesday-today?) (time/friday-today?)) (random-meeting))))

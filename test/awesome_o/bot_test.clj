@@ -84,22 +84,19 @@
   (is (= (mention "I'm away today")
          (str "OK, now I know jean-louis will be away from " today " to " today)))
 
-  (is (= (mention "select the next meetingmaster")
-         "@patrik is today's meetingmaster"))
-
   (is (= (mention "patrik is away today")
          (str "OK, now I know patrik will be away from " today " to " today)))
 
   (is (= (mention "anders is away today")
          (str "OK, now I know anders will be away from " today " to " today)))
 
-  (is (= (mention "select the next meetingmaster")
-         "THERE IS NO DEV! OMG RUN FOR YOUR LIFE!!"))
-
   (is (= @sent-to-slack
          ["jean-louis was slackmaster but is away, therefore:\n@patrik is today's slackmaster"
+          "jean-louis was meetingmaster but is away, therefore:\n@patrik is today's meetingmaster"
           "patrik was slackmaster but is away, therefore:\n@anders is today's slackmaster"
-          "anders was slackmaster but is away, therefore:\nTHERE IS NO DEV! OMG RUN FOR YOUR LIFE!!"]))
+          "patrik was meetingmaster but is away, therefore:\n@anders is today's meetingmaster"
+          "anders was slackmaster but is away, therefore:\nTHERE IS NO DEV! OMG RUN FOR YOUR LIFE!!"
+          "anders was meetingmaster but is away, therefore:\nTHERE IS NO DEV! OMG RUN FOR YOUR LIFE!!"]))
 
   (is (= (mention "clear my schedule")
          "OK, I've cleared jean-louis's schedule"))
@@ -160,7 +157,7 @@
            ["@jean-louis is today's slackmaster",
             "Today is @patrik's birthday! Happy birthday!"
             "Honeydager monday! ping: @jean-louis, @patrik"
-            "Todays meeting master for dev this week is @jean-louis"]))))
+            "@jean-louis is today's meetingmaster"]))))
 
 (deftest ping-test-tuesday-thursday
   (testing "tuesday and thursday - does daily announcements"
