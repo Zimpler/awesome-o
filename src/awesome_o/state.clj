@@ -4,11 +4,11 @@
             [taoensso.carmine.locks :as locks]
             [environ.core :refer [env]]))
 
-(defn redis-config []
+(defn- redis-config []
   {:pool {}
    :spec {:uri (env :redistogo-url "redis://localhost:6379")}})
 
-(defmacro wcar* [& body] `(car/wcar (redis-config) ~@body))
+(defmacro ^:private wcar* [& body] `(car/wcar (redis-config) ~@body))
 
 (defn flushdb []
   (wcar* (car/flushdb)))
@@ -72,11 +72,8 @@
 (defn get-birthday [name]
   (get-person-key name :birthday))
 
-(defn get-birthdays []
+(defn- get-birthdays []
   (filter (fn [[_ date]] (some? date)) (get-persons-key :birthday)))
-
-(defn remove-birthday [name]
-  (set-person-key name :birthday nil))
 
 (defn persons-born-today []
   (->> (get-birthdays)
@@ -89,27 +86,12 @@
 (defn set-persons-location [name location]
   (set-person-key name :location location))
 
-(defn remove-persons-location [person]
-  (set-person-key name :location nil))
-
 (defn get-persons-location [name]
   (get-person-key name :location))
-
-(defn get-persons-locations []
-  (get-persons-key :location))
-
-(defn get-available-people-in-location [target-location]
-  (for [[person location] (get-persons-locations)
-        :when (= location target-location)
-        :when (not (away? person))]
-    person))
 
 (def locations ["stockholm" "göteborg"])
 
 (def jobs ["dev" "sales" "biz" "bizdev" "design"])
-
-(defn remove-persons-job [name]
-  (set-person-key name :team nil))
 
 (defn set-persons-job [name new-job]
   (set-person-key name :team new-job))
@@ -135,12 +117,23 @@
 (defn away? [person]
   (some time/active-period (get-periods-away person)))
 
-(defn available-devs []
-  (remove away? (get-job-persons "dev")))
+(defn draw-people-from-job [job & {:keys [number]}]
+  (->> (get-job-persons job)
+       (remove away?)
+       (shuffle)
+       (take number)))
+
+(defn random-person-from-location [target-location]
+  (->> (get-persons-key :location)
+       (filter (fn [[_ location]] (= target-location location)))
+       (remove (fn [[person _]] (away? person)))
+       (mapv first)
+       rand-nth))
 
 (defn select-next-slackmaster []
   (update-in-state [:task-assignments]
-                   assoc :slackmaster (rand-nth (available-devs))))
+                   assoc :slackmaster
+                         (first (draw-people-from-job "dev" :number 1))))
 
 (defn get-slackmaster []
   (or (get-in (get-state) [:task-assignments :slackmaster])

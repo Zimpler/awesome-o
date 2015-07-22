@@ -29,18 +29,18 @@
 (def ^:private pingify (partial str "@"))
 
 (defn- monday-announcements []
-  (let [devs (shuffle (state/available-devs))
-        gbgs (shuffle (state/get-available-people-in-location "göteborg"))
-        meeting-master (pingify (rand-nth gbgs))
-        honeybadgers (->> devs (take 2) (map pingify) (string/join ", "))]
+  (let [meeting-master (->> (state/draw-people-from-job "dev" :number 1)
+                            first
+                            pingify)
+        honeybadgers (->> (state/draw-people-from-job "dev" :number 2)
+                          (map pingify)
+                          (string/join ", "))]
     (say (str "Honeydager monday! ping: " honeybadgers) :channel "dev")
     (say (str "Todays meeting master for dev this week is " meeting-master))))
 
 (defn- random-meeting []
-  (let [gbgs (state/get-available-people-in-location "göteborg")
-        gbg (pingify (rand-nth gbgs))
-        sthlms (state/get-available-people-in-location "stockholm")
-        sthlm (pingify (rand-nth sthlms))]
+  (let [gbg (pingify (state/random-person-from-location "göteborg"))
+        sthlm (pingify (state/random-person-from-location "stockholm"))]
     (say (str "Today's random meeting is between " gbg " and " sthlm))))
 
 (defn announcement [user-name text]
