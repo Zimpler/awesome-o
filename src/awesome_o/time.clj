@@ -1,6 +1,6 @@
 (ns awesome-o.time
   (:require
-   [clj-time.core :as time :refer [days from-now year month day]]
+   [clj-time.core :as time :refer [days year month day]]
    [clj-time.predicates :refer :all]
    [clj-time.format]))
 
@@ -34,6 +34,12 @@
 
 (defn friday-today? []
   (friday? (today)))
+
+(defn n-days-from-today [n]
+  (time/plus (time/today) (days n)))
+
+(defn n-days-ago-today [n]
+  (time/minus (time/today) (days n)))
 
 (defn next-day [date]
   (time/plus date (days 1)))
@@ -74,8 +80,8 @@
     period))
 
 (defn active-period [{:keys [from to] :as period}]
-  (when (time/within? (previous-day (parse-date from))
-                      (next-day (parse-date to))
+  (when (time/within? (parse-date from)
+                      (parse-date to)
                       (time/today))
     period))
 

@@ -193,3 +193,65 @@
            ["@patrik is today's slackmaster"
             "Today is @patrik's birthday! Happy birthday!"
             "Today's random meeting is between @jean-louis and @kristoffer"]))))
+
+(deftest schedule-test
+  (is (= (mention "what is jean-louis schedule?")
+         "I do not have a schedule for jean-louis"))
+  (is (not (state/away? "jean-louis")))
+
+  (is (= (mention "jean-louis is away today")
+         (str "OK, now I know jean-louis will be away from "
+              (time/today) " to "
+              (time/today))))
+
+  (is (= (mention "what is jean-louis schedule?")
+         (str "jean-louis will be away on " (time/today))))
+  (is (state/away? "jean-louis"))
+  (is (= (mention "clear jean-louis schedule"))
+      "OK, I've cleared jean-louis's schedule")
+
+  (is (= (mention "jean-louis is away tomorrow")
+         (str "OK, now I know jean-louis will be away from "
+              (time/tomorrow) " to "
+              (time/tomorrow))))
+
+  (is (= (mention "what is jean-louis schedule?")
+         (str "jean-louis will be away on " (time/tomorrow))))
+  (is (not (state/away? "jean-louis")))
+
+  (is (= (mention (str "jean-louis is away until " (time/n-days-from-today 3)))
+         (str "OK, now I know jean-louis will be away from "
+              (time/today) " to "
+              (time/n-days-from-today 2))))
+
+  (is (= (mention "what is jean-louis schedule?")
+         (str "jean-louis will be away"
+              " on " (time/tomorrow)
+              ", from " (time/today) " to " (time/n-days-from-today 2))))
+  (is (state/away? "jean-louis"))
+  (is (= (mention "clear jean-louis schedule"))
+      "OK, I've cleared jean-louis's schedule")
+
+  (is (= (mention (str "jean-louis will be away from "
+                       (time/n-days-ago-today 3) " to "
+                       (time/n-days-ago-today 1)))
+        (str "OK, now I know jean-louis will be away from "
+             (time/n-days-ago-today 3) " to "
+             (time/n-days-ago-today 1))))
+
+  (is (= (mention "what is jean-louis schedule?")
+         "I do not have a schedule for jean-louis"))
+  (is (not (state/away? "jean-louis")))
+
+  (is (= (mention (str "jean-louis will be away from "
+                      (time/n-days-from-today 2) " to "
+                      (time/n-days-from-today 5)))
+         (str "OK, now I know jean-louis will be away from "
+              (time/n-days-from-today 2) " to "
+              (time/n-days-from-today 5))))
+
+  (is (= (mention "what is jean-louis schedule?")
+         (str "jean-louis will be away from "
+              (time/n-days-from-today 2) " to "
+              (time/n-days-from-today 5))))
+  (is (not (state/away? "jean-louis"))))
