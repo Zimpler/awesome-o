@@ -50,7 +50,7 @@
 (defn mention [user-name text]
   (let [slack-master (state/get-slackmaster)
         text-response (bot/reply user-name text)]
-    (when (and slack-master (not (state/get-slackmaster)))
+    (when (state/away? slack-master)
       (select-next-slackmaster :changed-from slack-master))
     {:text text-response
      :username "awesome-o"

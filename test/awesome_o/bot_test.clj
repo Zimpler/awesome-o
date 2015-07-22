@@ -99,7 +99,7 @@
          "OK, I've cleared anders's schedule"))
 
   (is (= (mention "select next slackmaster")
-         "@anders is today's slackmaster"))
+         "@jean-louis is today's slackmaster"))
 
   (is (= (mention "what is the meaning of life?")
          "forty-two"))
@@ -148,7 +148,7 @@
       state/acquire-daily-announcement (constantly true)]
       (slack/ping))
     (is (= @sent-to-slack
-           ["@patrik is today's slackmaster",
+           ["@jean-louis is today's slackmaster",
             "Today is @patrik's birthday! Happy birthday!"
             "Honeydager monday! ping: @jean-louis, @patrik"
             "Todays meeting master for dev this week is @jean-louis"]))))
@@ -163,7 +163,7 @@
       state/acquire-daily-announcement (constantly true)]
       (slack/ping))
     (is (= @sent-to-slack
-           ["@patrik is today's slackmaster"
+           ["@jean-louis is today's slackmaster"
             "Today is @patrik's birthday! Happy birthday!"]))))
 
 (deftest ping-test-wednesday
@@ -176,7 +176,7 @@
       state/acquire-daily-announcement (constantly true)]
       (slack/ping))
     (is (= @sent-to-slack
-           ["@patrik is today's slackmaster"
+           ["@jean-louis is today's slackmaster"
             "Today is @patrik's birthday! Happy birthday!"
             "Today's random meeting is between @jean-louis and @kristoffer"]))))
 
@@ -190,7 +190,7 @@
       state/acquire-daily-announcement (constantly true)]
       (slack/ping))
     (is (= @sent-to-slack
-           ["@patrik is today's slackmaster"
+           ["@jean-louis is today's slackmaster"
             "Today is @patrik's birthday! Happy birthday!"
             "Today's random meeting is between @jean-louis and @kristoffer"]))))
 

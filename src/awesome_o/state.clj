@@ -21,7 +21,7 @@
 (defn reset-state []
   (wcar* (car/set "state"
                   {:persons {}
-                   :slackmasters-index 0})))
+                   :task-assignments {:slack-master nil}})))
 
 (defn- get-state []
   (wcar* (car/get "state")))
@@ -44,7 +44,7 @@
                     :location nil
                     :team nil
                     :away []
-                    :position (+ last-position 1)}))))))
+                    :position (inc last-position)}))))))
 
 (defn- set-person-key [name key value]
   (do (add-person name)
@@ -120,7 +120,8 @@
 (defn get-job-persons [job]
   (->> (get-persons-key :team)
        (filter (fn [[name j]] (= j job)))
-       (map first)))
+       (map first)
+       (apply vector)))
 
 (defn add-period-away [name period]
   (update-in-state [:persons name :away] conj period))
@@ -137,27 +138,14 @@
 (defn available-devs []
   (remove away? (get-job-persons "dev")))
 
-(defn reset-slackmaster []
-  (update-state
-   (fn [state] (assoc state :slackmasters-index 0))))
-
-(defn get-slackmaster-index []
-  (get (get-state) :slackmasters-index))
+(defn select-next-slackmaster []
+  (update-in-state [:task-assignments]
+                   assoc :slackmaster (rand-nth (available-devs))))
 
 (defn get-slackmaster []
-  (let [slackmaster
-        (nth (cycle (get-job-persons "dev"))
-             (get-slackmaster-index))]
-    (when-not (away? slackmaster)
-      slackmaster)))
-
-(defn select-next-slackmaster []
-  (do
-    (update-in-state [:slackmasters-index] inc)
-    (if-let [dev (get-slackmaster)]
-      dev
-      (when (seq (available-devs))
-        (recur)))))
+  (or (get-in (get-state) [:task-assignments :slackmaster])
+      (do (select-next-slackmaster)
+          (get-in (get-state) [:task-assignments :slackmaster]))))
 
 (defn reset-daily-announcement []
   (wcar* (car/set (str "daily-announcement-"
