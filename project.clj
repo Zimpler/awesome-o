@@ -15,12 +15,12 @@
                  [com.taoensso/carmine "2.11.1"]
                  [clj-time "0.10.0"]
                  [org.clojure/core.match "0.3.0-alpha4"]
+                 [org.clojure/tools.nrepl "0.2.10"]
                  [com.cemerick/drawbridge "0.0.7"]]
   :min-lein-version "2.0.0"
   :plugins [[lein-environ "1.0.0"]
             [lein-auto "0.1.2"]]
   :uberjar-name "awesome-o-standalone.jar"
   :profiles {:dev {:source-paths ["dev"]
-                   :dependencies [[org.clojure/tools.nrepl "0.2.10"]
-                                  [org.clojure/tools.namespace "0.2.11"]]}
+                   :dependencies [[org.clojure/tools.namespace "0.2.11"]]}
              :production {:env {:production false}}})
