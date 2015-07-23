@@ -4,11 +4,11 @@
             [taoensso.carmine.locks :as locks]
             [environ.core :refer [env]]))
 
-(defn redis-config []
+(defn- redis-config []
   {:pool {}
    :spec {:uri (env :redistogo-url "redis://localhost:6379")}})
 
-(defmacro wcar* [& body] `(car/wcar (redis-config) ~@body))
+(defmacro ^:private wcar* [& body] `(car/wcar (redis-config) ~@body))
 
 (defn flushdb []
   (wcar* (car/flushdb)))
@@ -21,16 +21,21 @@
 (defn reset-state []
   (wcar* (car/set "state"
                   {:persons {}
-                   :locations []
-                   :slackmasters-index 0
-                   :dev-meeting-index 0})))
+                   :task-assignments {:slackmaster nil
+                                      :meetingmaster nil}})))
 
-(defn get-state []
+(defn- get-state []
   (wcar* (car/get "state")))
 
-(defn update-state [fun]
+(defn- get-in-state [ks]
+  (get-in (get-state) ks))
+
+(defn- update-state [fun]
   (let [state (get-state)]
     (wcar* (car/set "state" (fun state)))))
+
+(defn- update-in-state [ks f & args]
+  (update-state (fn [state] (apply update-in state ks f args))))
 
 (defn add-person [name]
   (update-state
@@ -43,18 +48,16 @@
                     :location nil
                     :team nil
                     :away []
-                    :position (+ last-position 1)}))))))
+                    :position (inc last-position)}))))))
 
-(defn set-person-key [name key value]
+(defn- set-person-key [name key value]
   (do (add-person name)
-      (update-state
-       (fn [state]
-         (update-in state [:persons name] assoc key value)))))
+  (update-in-state [:persons name] assoc key value)))
 
-(defn get-person-key [name key]
-  (get-in (get-state) [:persons name key]))
+(defn- get-person-key [name key]
+  (get-in-state [:persons name key]))
 
-(defn get-persons-key [key]
+(defn- get-persons-key [key]
   (->> (get-state)
        :persons
        (sort-by (comp :position second))
@@ -62,8 +65,7 @@
        (into (array-map))))
 
 (defn remove-person [name]
-  (update-state
-   (fn [state] (update-in state [:persons] dissoc name))))
+  (update-in-state [:persons] dissoc name))
 
 (defn get-names []
   (-> (get-state) :persons keys))
@@ -74,11 +76,8 @@
 (defn get-birthday [name]
   (get-person-key name :birthday))
 
-(defn get-birthdays []
+(defn- get-birthdays []
   (filter (fn [[_ date]] (some? date)) (get-persons-key :birthday)))
-
-(defn remove-birthday [name]
-  (set-person-key name :birthday nil))
 
 (defn persons-born-today []
   (->> (get-birthdays)
@@ -91,40 +90,12 @@
 (defn set-persons-location [name location]
   (set-person-key name :location location))
 
-(defn remove-persons-location [person]
-  (set-person-key name :location nil))
-
 (defn get-persons-location [name]
   (get-person-key name :location))
 
-(defn get-persons-locations []
-  (get-persons-key :location))
+(def locations ["stockholm" "göteborg"])
 
-(defn add-location [location]
-  (update-state
-   (fn [state]
-     (update-in state [:locations] conj location))))
-
-(defn remove-location [location]
-  (update-state
-   (fn [state]
-     (update-in state [:locations]
-                (fn [locations]
-                  (vec (remove #{location} locations)))))))
-
-(defn get-locations []
-  (get (get-state) :locations))
-
-(defn get-available-people-in-location [target-location]
-  (for [[person location] (get-persons-locations)
-        :when (= location target-location)
-        :when (not (away? person))]
-    person))
-
-(def jobs ["dev" "sales" "biz" "bizdev" "ux"])
-
-(defn remove-persons-job [name]
-  (set-person-key name :team nil))
+(def jobs ["dev" "sales" "biz" "bizdev" "design"])
 
 (defn set-persons-job [name new-job]
   (set-person-key name :team new-job))
@@ -135,13 +106,11 @@
 (defn get-job-persons [job]
   (->> (get-persons-key :team)
        (filter (fn [[name j]] (= j job)))
-       (map first)))
-
+       (map first)
+       (apply vector)))
 
 (defn add-period-away [name period]
-  (update-state
-   (fn [state]
-     (update-in state [:persons name :away] conj period))))
+  (update-in-state [:persons name :away] conj period))
 
 (defn get-periods-away [name]
   (get-person-key name :away))
@@ -152,32 +121,42 @@
 (defn away? [person]
   (some time/active-period (get-periods-away person)))
 
-(defn available-devs []
-  (remove away? (get-job-persons "dev")))
+(defn draw-people-from-job [job & {:keys [number]}]
+  (->> (get-job-persons job)
+       (remove away?)
+       (shuffle)
+       (take number)))
 
-(defn reset-slackmaster []
-  (update-state
-   (fn [state] (assoc state :slackmasters-index 0))))
+(defn random-person-from-location [target-location]
+  (->> (get-persons-key :location)
+       (filter (fn [[_ location]] (= target-location location)))
+       (remove (fn [[person _]] (away? person)))
+       (mapv first)
+       rand-nth))
 
-(defn get-slackmaster-index []
-  (get (get-state) :slackmasters-index))
-
-(defn get-slackmaster []
-  (let [slackmaster
-        (nth (cycle (get-job-persons "dev"))
-             (get-slackmaster-index))]
-    (when-not (away? slackmaster)
-      slackmaster)))
+(defn random-person-with-job [job]
+  (->> (get-job-persons job)
+       (remove away?)
+       (into [])
+       rand-nth))
 
 (defn select-next-slackmaster []
-  (do
-    (update-state
-     (fn [state]
-       (update-in state [:slackmasters-index] inc)))
-    (if-let [dev (get-slackmaster)]
-      dev
-      (when (seq (available-devs))
-        (recur)))))
+  (update-in-state [:task-assignments]
+                   assoc :slackmaster (random-person-with-job "dev")))
+
+(defn get-slackmaster []
+  (or (get-in-state [:task-assignments :slackmaster])
+      (do (select-next-slackmaster)
+          (get-in-state [:task-assignments :slackmaster]))))
+
+(defn select-next-meetingmaster []
+  (update-in-state [:task-assignments]
+                   assoc :meetingmaster (random-person-with-job "dev")))
+
+(defn get-meetingmaster []
+  (or (get-in-state [:task-assignments :meetingmaster])
+      (do (select-next-meetingmaster)
+          (get-in-state [:task-assignments :meetingmaster]))))
 
 (defn reset-daily-announcement []
   (wcar* (car/set (str "daily-announcement-"

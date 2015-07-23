@@ -12,29 +12,30 @@
     (string/join " | " (map #(str "'" % "'") data))
     "epsilon"))
 
-(defn- dialogue [persons locations]
+(defn- dialogue [persons locations jobs]
   (insta/parser
    (str
     "<mention> = (<'awesome-o'> | <'awesomeo'> | <'awesomo'> | <'bot'> | <'test'>) <' '> dialogue
      <dialogue> = help / get-slackmaster / select-next-slackmaster /
-                  set-job / set-birthday /
-                  get-birthday / set-away / set-location /
-                  get-location / declare-location /
+                  get-meetingmaster / select-next-meetingmaster /
+                  set-job / set-birthday / get-birthday /
+                  set-away / set-location / get-location /
                   get-schedule / reset-schedule / declare-person /
                   forget-person / list-team / who-is
 
      help = <'help'>
 
-     get-slackmaster = <'who is '> <'the '>? slackmaster
-     select-next-slackmaster = <'select '> <'the '>? <'next '> slackmaster
+     get-slackmaster = who-is-the slackmaster
+     select-next-slackmaster = select-the-next slackmaster
+     get-meetingmaster = who-is-the meetingmaster
+     select-next-meetingmaster = select-the-next meetingmaster
 
      declare-person = (myself / word) <to-be> <' a '>
                       (<'person'> | <'puggle'>)
 
      forget-person = <'forget about '> person
 
-     set-job = someone <to-be> (<' a '> | <' part of '>) job |
-               someone <to-be> <' part of the '> job <' team'>
+     set-job = someone <' is in the '> job <' team'>
 
      list-team = <'who is part of the '> job <' team'> |
                  <'who is part of '> job
@@ -44,8 +45,6 @@
      set-location = someone <to-be> <' in '> location
 
      get-location = <'where'> <to-be> <' '> someone
-
-     declare-location = word <' is a '> (<'place'> | <'location'>)
 
      set-birthday = <'the birthday of '> person <' is '> date |
                     myself <' birthday is '> date |
@@ -67,17 +66,17 @@
 
      to-be = <' is'> | <' am'> | <' was'> | <'\\'m'> | <'\\'s'> | <' will be'> | <'\\'ll be'>
 
-     job = dev | sales | 'biz' | 'bizdev' | ux | 'operations'
-     <dev> = 'dev' <'eloper'>?
-     <sales> = 'sales' (<''> | <'man'> | <'woman'>)
-     <ux> = 'ux'<' designer'>
+     job = " (->string-list jobs) "
 
      myself = <'myself'> / <'my'> / <'me'> / <'i'>
+     who-is-the = <'who is '> <'the '>?
+     select-the-next = <'select '> <'the '>? <'next '>
      everybody = <'everybody'> | <'everyone'>
      person = " (->string-list persons) "
      <someone> = person / myself
      weekday = " (->string-list time/weekdays) "
      <slackmaster> = <'slack'><' '>?<'master'>
+     <meetingmaster> = <'meeting'><' '>?<'master'>
 
      iso-date = #'[0-9]{4}-[0-9]{2}-[0-9]{2}'
      <day> = <'on '>? (weekday | iso-date)
@@ -149,8 +148,8 @@
 (defn success? [result]
   (not (insta/failure? result)))
 
-(defn parse [{:keys [myself persons locations]} text]
-  (let [result (insta/parse (dialogue persons locations)
+(defn parse [{:keys [myself persons locations jobs]} text]
+  (let [result (insta/parse (dialogue persons locations jobs)
                             (cleanup text))]
     (if (insta/failure? result)
       result
