@@ -58,7 +58,7 @@
         text-response   (bot/reply user-name text)]
     (when (state/away? slack-master)
       (select-next-slackmaster :changed-from slack-master))
-    (when (state/away? meeting-master)
+    (when (and (state/away? meeting-master) (time/monday-today?))
       (select-next-meetingmaster :changed-from meeting-master))
     {:text text-response
      :username "awesome-o"
