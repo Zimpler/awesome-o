@@ -39,6 +39,8 @@
 (use-fixtures :each setup-redis rebind-post)
 
 (deftest mention-test
+  (with-redefs
+      [time/monday-today? (constantly true)]
   (is (= (mention "anders is a puggle")
          "OK, nice to meet you @anders!"))
 
@@ -135,7 +137,15 @@
          "OK, I've forgotten everything about anders"))
 
   (is (= (mention "who is part of the dev team?")
-         "The dev team: jean-louis, patrik")))
+         "The dev team: jean-louis, patrik"))))
+
+(deftest only-monday-meeting-master
+  (testing "only update meeting master on mondays"
+    (with-redefs
+      [time/monday-today? (constantly false)] 
+      (mention "jean-louis is away today")
+      (is (= @sent-to-slack 
+             ["jean-louis was slackmaster but is away, therefore:\n@patrik is today's slackmaster"])))))
 
 (deftest ping-test-non-working
   (testing "non-working hours - does nothing"
