@@ -110,7 +110,7 @@
                      :to   (normalize-date [:weekday "sunday"])}
 
     [["on" [:date date]]] (let [norm-date (normalize-date date)]
-                          {:from norm-date :to norm-date})
+                           {:from norm-date :to norm-date})
 
     [["until" [:date date]]] {:from (normalize-date "today")
                               :to (-> date normalize-date
