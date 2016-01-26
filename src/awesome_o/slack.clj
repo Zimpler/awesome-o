@@ -71,6 +71,7 @@
     (doseq [person (state/persons-born-today)]
       (say (format "Today is @%s's birthday! Happy birthday!" person)))
     (when (time/monday-today?)
-      (select-honeybadgers)
+      (select-honeybadgers))
+    (when (time/friday-today?)
       (select-next-meetingmaster))
-    (when (or (time/wednesday-today?) (time/friday-today?)) (random-meeting))))
+    (when (or (time/monday-today?) (time/wednesday-today?)) (random-meeting))))

@@ -167,7 +167,7 @@
            ["@jean-louis is today's slackmaster",
             "Today is @patrik's birthday! Happy birthday!"
             "Honeydager monday! ping: @jean-louis, @patrik"
-            "@jean-louis is today's meetingmaster"]))))
+            "Today's random meeting is between @jean-louis and @kristoffer"]))))
 
 (deftest ping-test-tuesday-thursday
   (testing "tuesday and thursday - does daily announcements"
@@ -208,7 +208,7 @@
     (is (= @sent-to-slack
            ["@jean-louis is today's slackmaster"
             "Today is @patrik's birthday! Happy birthday!"
-            "Today's random meeting is between @jean-louis and @kristoffer"]))))
+            "@jean-louis is today's meetingmaster"]))))
 
 (deftest schedule-test
   (is (= (mention "what is jean-louis schedule?")
