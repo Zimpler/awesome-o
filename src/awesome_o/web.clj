@@ -28,7 +28,7 @@
   (let [slack-response (slack/mention user-name text)]
     {:status 200
      :headers {"Content-Type" "application/json; charset=utf-8"}
-     :body (json/generate-string slack-response)}) )
+     :body (json/generate-string slack-response)}))
 
 (defroutes app
   (ANY "/repl" {:as req}
@@ -68,5 +68,4 @@
 ;; For interactive development:
 (comment
   (.stop server)
-  (def server (-main))
-  )
+  (def server (-main)))

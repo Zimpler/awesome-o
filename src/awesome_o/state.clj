@@ -52,7 +52,7 @@
 
 (defn- set-person-key [name key value]
   (do (add-person name)
-  (update-in-state [:persons name] assoc key value)))
+   (update-in-state [:persons name] assoc key value)))
 
 (defn- get-person-key [name key]
   (get-in-state [:persons name key]))

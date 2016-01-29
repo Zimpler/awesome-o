@@ -19,8 +19,8 @@
   ([hour] (today-at hour 0))
   ([hour min] (today-at hour min 0))
   ([hour min sec]
-     (time/from-time-zone (time/today-at hour min sec)
-                          stockholm-tz)))
+   (time/from-time-zone (time/today-at hour min sec)
+                        stockholm-tz)))
 
 (defn working-hour? []
   (and (not (weekend? (now)))
@@ -106,9 +106,9 @@
 (defn next-weekday
   ([weekday] (next-weekday (today) weekday))
   ([date weekday]
-     (next-date date (weekday-predicate weekday))))
+   (next-date date (weekday-predicate weekday))))
 
 (defn prev-weekday
   ([weekday] (prev-weekday (today) weekday))
   ([date weekday]
-     (prev-date date (weekday-predicate weekday))))
+   (prev-date date (weekday-predicate weekday))))
