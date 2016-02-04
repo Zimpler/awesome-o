@@ -4,7 +4,7 @@
    [org.httpkit.client :as http]))
 
 (def ^:private url
-  "https://pugglepay.slack.com/services/hooks/incoming-webhook")
+  "https://zimpler.slack.com/services/hooks/incoming-webhook")
 
 (defn post
   [token payload]
