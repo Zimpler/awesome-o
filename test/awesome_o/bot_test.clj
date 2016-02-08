@@ -156,6 +156,11 @@
 
 (deftest ping-test-monday
   (testing "a working hour monday - sends all announcements"
+    ;; Need more devs to test honeybadger monday
+    (state/add-person "hugo")
+    (state/set-persons-job "hugo" "dev")
+    (state/add-person "gustaf")
+    (state/set-persons-job "gustaf" "dev")
     (with-redefs
      [time/working-hour? (constantly true)
       time/monday-today? (constantly true)
@@ -166,7 +171,7 @@
     (is (= @sent-to-slack
            ["@jean-louis is today's slackmaster",
             "Today is @patrik's birthday! Happy birthday!"
-            "Honeydager monday! ping: @jean-louis, @patrik"
+            "Honeybadger Monday & Story Triage! ping: @jean-louis, @patrik, @hugo"
             "Today's random meeting is between @jean-louis and @kristoffer"]))))
 
 (deftest ping-test-tuesday-thursday
