@@ -33,7 +33,7 @@
     (when changed-from
       (str changed-from " was meetingmaster but is away, therefore:\n"))
     (bot/react [:select-next-meetingmaster]))
-   :channel "general"))
+   :channel "dev"))
 
 (def ^:private pingify (partial str "@"))
 
@@ -49,8 +49,8 @@
     (say (str "Today's random meeting is between " gbg " and " sthlm))))
 
 (defn announcement [user-name text]
-  (say (str "@everyone: new announcement from " user-name ":\n"
-                  text)))
+  (say (str "new announcement from " user-name ":\n"
+            text)))
 
 (defn mention [user-name text]
   (let [slack-master    (state/get-slackmaster)
