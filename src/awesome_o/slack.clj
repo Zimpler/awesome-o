@@ -24,7 +24,7 @@
     (when changed-from
       (str changed-from " was slackmaster but is away, therefore:\n"))
     (bot/react [:select-next-slackmaster]))
-   :channel "general"))
+   :channel "dev"))
 
 (defn- select-next-meetingmaster
   [& {:keys [changed-from]}]
@@ -33,7 +33,7 @@
     (when changed-from
       (str changed-from " was meetingmaster but is away, therefore:\n"))
     (bot/react [:select-next-meetingmaster]))
-   :channel "dev"))
+   :channel "general"))
 
 (def ^:private pingify (partial str "@"))
 
