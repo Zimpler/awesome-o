@@ -16,19 +16,12 @@
   (insta/parser
    (str
     "<mention> = (<'awesome-o'> | <'awesomeo'> | <'awesomo'> | <'bot'> | <'test'>) <' '> dialogue
-     <dialogue> = help / get-slackmaster / select-next-slackmaster /
-                  get-meetingmaster / select-next-meetingmaster /
-                  set-job / set-birthday / get-birthday /
+     <dialogue> = help / set-job / set-birthday / get-birthday /
                   set-away / set-location / get-location /
                   get-schedule / reset-schedule / declare-person /
                   forget-person / list-team / who-is
 
      help = <'help'>
-
-     get-slackmaster = who-is-the slackmaster
-     select-next-slackmaster = select-the-next slackmaster
-     get-meetingmaster = who-is-the meetingmaster
-     select-next-meetingmaster = select-the-next meetingmaster
 
      declare-person = (myself / word) <to-be> <' a '>
                       (<'person'> | <'puggle'>)
@@ -75,8 +68,6 @@
      person = " (->string-list persons) "
      <someone> = person / myself
      weekday = " (->string-list time/weekdays) "
-     <slackmaster> = <'slack'><' '>?<'master'>
-     <meetingmaster> = <'meeting'><' '>?<'master'>
 
      iso-date = #'[0-9]{4}-[0-9]{2}-[0-9]{2}'
      <day> = <'on '>? (weekday | iso-date)
