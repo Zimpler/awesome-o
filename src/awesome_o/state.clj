@@ -20,9 +20,7 @@
 
 (defn reset-state []
   (wcar* (car/set "state"
-                  {:persons {}
-                   :task-assignments {:slackmaster nil
-                                      :meetingmaster nil}})))
+                  {:persons {}})))
 
 (defn- get-state []
   (wcar* (car/get "state")))
@@ -139,24 +137,6 @@
        (remove away?)
        (into [])
        rand-nth))
-
-(defn select-next-slackmaster []
-  (update-in-state [:task-assignments]
-                   assoc :slackmaster (random-person-with-job "dev")))
-
-(defn get-slackmaster []
-  (or (get-in-state [:task-assignments :slackmaster])
-      (do (select-next-slackmaster)
-          (get-in-state [:task-assignments :slackmaster]))))
-
-(defn select-next-meetingmaster []
-  (update-in-state [:task-assignments]
-                   assoc :meetingmaster (random-person-with-job "dev")))
-
-(defn get-meetingmaster []
-  (or (get-in-state [:task-assignments :meetingmaster])
-      (do (select-next-meetingmaster)
-          (get-in-state [:task-assignments :meetingmaster]))))
 
 (defn reset-daily-announcement []
   (wcar* (car/set (str "daily-announcement-"

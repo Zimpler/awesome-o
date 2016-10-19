@@ -25,12 +25,8 @@
                 " - where is person?"
                 " - person was born on 1980-01-01"
                 " - when is person's birthday?"
-                " - who is slackmaster?"
-                " - who is meetingmaster?"
                 " - person is away today"
                 " - person is away from monday to friday"
-                " - select the next slackmaster!"
-                " - select the next meetingmaster!"
                 " - what is the schedule of person?"
                 " - clear the schedule of person."
                 " - what is the meaning of life?"
@@ -121,24 +117,6 @@
   [[_ {:keys [person]}]]
   (do (state/reset-periods-away person)
       (str "OK, I've cleared " person "'s schedule")))
-
-(defmethod react :select-next-slackmaster [_]
-  (do (state/select-next-slackmaster)
-      (react [:get-slackmaster])))
-
-(defmethod react :get-slackmaster [_]
-  (if-let [slackmaster (state/get-slackmaster)]
-    (str "@" slackmaster " is today's slackmaster")
-    (str "THERE IS NO DEV! OMG RUN FOR YOUR LIFE!!")))
-
-(defmethod react :select-next-meetingmaster [_]
-  (do (state/select-next-meetingmaster)
-      (react [:get-meetingmaster])))
-
-(defmethod react :get-meetingmaster [_]
-  (if-let [meetingmaster (state/get-meetingmaster)]
-    (str "@" meetingmaster " is today's meetingmaster")
-    (str "THERE IS NO DEV! OMG RUN FOR YOUR LIFE!!")))
 
 (defn reply [user-name text]
   (let [persons (state/get-names)
