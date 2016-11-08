@@ -93,7 +93,7 @@
 
 (def locations ["stockholm" "göteborg"])
 
-(def jobs ["dev" "sales" "biz" "bizdev" "design"])
+(def jobs ["dev" "sales" "biz" "bizdev" "design" "cto"])
 
 (defn set-persons-job [name new-job]
   (set-person-key name :team new-job))
