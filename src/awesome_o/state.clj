@@ -62,6 +62,14 @@
        (map (fn [[name person]] [name (person key)]))
        (into (array-map))))
 
+(defn random-location []
+  (->> (get-state)
+       :persons
+       (mapv (fn [[_ data]] (:location data)))
+       (filter (comp not nil?))
+       (distinct)
+       (rand-nth)))
+
 (defn remove-person [name]
   (update-in-state [:persons] dissoc name))
 
@@ -124,6 +132,14 @@
        (remove away?)
        (shuffle)
        (take number)))
+
+(defn random-person-other-than [name]
+  (->> (get-state)
+       :persons
+       (remove (fn [[person _]] (or (away? person)
+                                    (= person name))))
+       (mapv first)
+       rand-nth))
 
 (defn random-person-from-location [target-location]
   (->> (get-persons-key :location)

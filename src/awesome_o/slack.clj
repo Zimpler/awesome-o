@@ -26,10 +26,13 @@
     (say (str "Honeybadger Monday & Story Triage! ping: " honeybadgers) :channel "dev")))
 
 (defn random-meeting []
-  (let [start-loc (rand-nth state/locations)
-        first-metee (pingify (state/random-person-from-location start-loc))
-        second-metee (pingify (state/random-person-not-from-location start-loc))]
-    (say (str "Today's random meeting is between " first-metee " and " second-metee))))
+  (let [start-loc (state/random-location)
+        first-metee (state/random-person-from-location start-loc)
+        second-metee (if (= start-loc "remote")
+                       (state/random-person-other-than first-metee)
+                       (state/random-person-not-from-location start-loc))]
+    (say (str "Today's random meeting is between " (pingify first-metee)
+              " and " (pingify second-metee)))))
 
 (defn announcement [user-name text]
   (say (str "new announcement from " user-name ":\n"
