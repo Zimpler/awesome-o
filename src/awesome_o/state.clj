@@ -91,7 +91,7 @@
 (defn get-persons-location [name]
   (get-person-key name :location))
 
-(def locations ["stockholm" "göteborg"])
+(def locations ["stockholm" "göteborg" "remote"])
 
 (def jobs ["dev" "sales" "biz" "bizdev" "design"])
 
@@ -128,6 +128,13 @@
 (defn random-person-from-location [target-location]
   (->> (get-persons-key :location)
        (filter (fn [[_ location]] (= target-location location)))
+       (remove (fn [[person _]] (away? person)))
+       (mapv first)
+       rand-nth))
+
+(defn random-person-not-from-location [target-location]
+  (->> (get-persons-key :location)
+       (filter (fn [[_ location]] (not= target-location location)))
        (remove (fn [[person _]] (away? person)))
        (mapv first)
        rand-nth))

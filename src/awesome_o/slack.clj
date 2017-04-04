@@ -25,10 +25,11 @@
                           (string/join ", "))]
     (say (str "Honeybadger Monday & Story Triage! ping: " honeybadgers) :channel "dev")))
 
-(defn- random-meeting []
-  (let [gbg (pingify (state/random-person-from-location "göteborg"))
-        sthlm (pingify (state/random-person-from-location "stockholm"))]
-    (say (str "Today's random meeting is between " gbg " and " sthlm))))
+(defn random-meeting []
+  (let [start-loc (rand-nth state/locations)
+        first-metee (pingify (state/random-person-from-location start-loc))
+        second-metee (pingify (state/random-person-not-from-location start-loc))]
+    (say (str "Today's random meeting is between " first-metee " and " second-metee))))
 
 (defn announcement [user-name text]
   (say (str "new announcement from " user-name ":\n"
