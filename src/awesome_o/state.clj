@@ -62,6 +62,14 @@
        (map (fn [[name person]] [name (person key)]))
        (into (array-map))))
 
+(defn random-location []
+  (->> (get-state)
+       :persons
+       (mapv (fn [[_ data]] (:location data)))
+       (filter (comp not nil?))
+       (distinct)
+       (rand-nth)))
+
 (defn remove-person [name]
   (update-in-state [:persons] dissoc name))
 
@@ -91,7 +99,7 @@
 (defn get-persons-location [name]
   (get-person-key name :location))
 
-(def locations ["stockholm" "göteborg"])
+(def locations ["stockholm" "göteborg" "remote"])
 
 (def jobs ["dev" "sales" "biz" "bizdev" "design"])
 
@@ -125,12 +133,29 @@
        (shuffle)
        (take number)))
 
+(defn random-person []
+  (->> (get-state)
+       :persons
+       (remove (fn [[person _]] (away? person)))
+       (mapv first)
+       rand-nth))
+
 (defn random-person-from-location [target-location]
   (->> (get-persons-key :location)
        (filter (fn [[_ location]] (= target-location location)))
        (remove (fn [[person _]] (away? person)))
        (mapv first)
        rand-nth))
+
+(defn random-person-from-other-location [name]
+  (let [target-location (get-persons-location name)]
+    (->> (get-persons-key :location)
+         (filter (fn [[_ location]] (or (= location "remote")
+                                        (not= location target-location))))
+         (remove (fn [[person _]] (or (away? person)
+                                      (= person name))))
+         (mapv first)
+         rand-nth)))
 
 (defn random-person-with-job [job]
   (->> (get-job-persons job)

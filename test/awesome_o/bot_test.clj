@@ -25,6 +25,10 @@
 
 (def sent-to-slack (atom []))
 
+(defn does-mention-users [search-str names]
+  (every? true?(mapv (fn [name] (.contains search-str name))
+                     names)))
+
 (defn- rebind-post [f]
   (reset! sent-to-slack [])
   (with-redefs
@@ -37,6 +41,11 @@
   (:text (slack/mention test-user (str "@awesome-o: " text))))
 
 (use-fixtures :each setup-redis rebind-post)
+
+(deftest random-meeting-test
+  (let [meeting slack/random-meeting]
+    (is (or (= "Today's random meeting is between @kristoffer and @jean-louis")
+            (= "Today's random meeting is between @jean-louis and @kristoffer")))))
 
 (deftest mention-test
   (with-redefs
@@ -145,10 +154,11 @@
        time/friday-today? (constantly false)
        state/acquire-daily-announcement (constantly true)]
       (slack/ping))
-    (is (= @sent-to-slack
-           ["Today is @patrik's birthday! Happy birthday!"
-            "Honeybadger Monday & Story Triage! ping: @jean-louis, @patrik, @hugo"
-            "Today's random meeting is between @jean-louis and @kristoffer"]))))
+    (is (and (= (drop-last @sent-to-slack)
+                ["Today is @patrik's birthday! Happy birthday!"
+                 "Honeybadger Monday & Story Triage! ping: @jean-louis, @patrik, @hugo"])
+             (re-matches #"Today's random meeting is between @.* and @.*"
+                         (last @sent-to-slack))))))
 
 (deftest ping-test-tuesday-thursday
   (testing "tuesday and thursday - does daily announcements"
@@ -171,12 +181,19 @@
        time/friday-today? (constantly false)
        state/acquire-daily-announcement (constantly true)]
       (slack/ping))
-    (is (= @sent-to-slack
-           ["Today is @patrik's birthday! Happy birthday!"
-            "Today's random meeting is between @jean-louis and @kristoffer"]))))
+    (is (and (= (first @sent-to-slack)
+                "Today is @patrik's birthday! Happy birthday!")
+             (re-matches #"Today's random meeting is between @.* and @.*"
+                         (last @sent-to-slack))))))
 
 (deftest ping-test-friday
   (testing "friday - does random meeting and daily announcements"
+    (state/remove-person test-user)
+    (state/remove-person "kristoffer")
+    (state/remove-person "magnus")
+    (state/add-person "jgt")
+    (state/set-persons-location "jgt" "remote")
+    (state/set-persons-location "patrik" "remote")
     (with-redefs
       [time/working-hour? (constantly true)
        time/monday-today? (constantly false)
@@ -184,9 +201,10 @@
        time/friday-today? (constantly true)
        state/acquire-daily-announcement (constantly true)]
       (slack/ping))
-    (is (= @sent-to-slack
-           ["Today is @patrik's birthday! Happy birthday!"
-            "Today's random meeting is between @jean-louis and @kristoffer"]))))
+    (is (and (= (first @sent-to-slack)
+                "Today is @patrik's birthday! Happy birthday!")
+             (does-mention-users (last @sent-to-slack)
+                                 ["jgt" "patrik"])))))
 
 (deftest schedule-test
   (is (= (mention "what is jean-louis schedule?")
