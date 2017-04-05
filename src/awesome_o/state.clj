@@ -133,11 +133,10 @@
        (shuffle)
        (take number)))
 
-(defn random-person-other-than [name]
+(defn random-person []
   (->> (get-state)
        :persons
-       (remove (fn [[person _]] (or (away? person)
-                                    (= person name))))
+       (remove (fn [[person _]] (away? person)))
        (mapv first)
        rand-nth))
 
@@ -148,12 +147,15 @@
        (mapv first)
        rand-nth))
 
-(defn random-person-not-from-location [target-location]
-  (->> (get-persons-key :location)
-       (filter (fn [[_ location]] (not= target-location location)))
-       (remove (fn [[person _]] (away? person)))
-       (mapv first)
-       rand-nth))
+(defn random-person-from-other-location [name]
+  (let [target-location (get-persons-location name)]
+    (->> (get-persons-key :location)
+         (filter (fn [[_ location]] (or (= location "remote")
+                                        (not= location target-location))))
+         (remove (fn [[person _]] (or (away? person)
+                                      (= person name))))
+         (mapv first)
+         rand-nth)))
 
 (defn random-person-with-job [job]
   (->> (get-job-persons job)
