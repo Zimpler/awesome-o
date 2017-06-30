@@ -142,11 +142,6 @@
 
 (deftest ping-test-monday
   (testing "a working hour monday - sends all announcements"
-    ;; Need more devs to test honeybadger monday
-    (state/add-person "hugo")
-    (state/set-persons-job "hugo" "dev")
-    (state/add-person "gustaf")
-    (state/set-persons-job "gustaf" "dev")
     (with-redefs
       [time/working-hour? (constantly true)
        time/monday-today? (constantly true)
@@ -156,7 +151,7 @@
       (slack/ping))
     (is (and (= (drop-last @sent-to-slack)
                 ["Today is @patrik's birthday! Happy birthday!"
-                 "Honeybadger Monday & Story Triage! ping: @jean-louis, @patrik, @hugo"])
+                 "Honeybadger Monday & Story Triage! ping: @jean-louis"])
              (re-matches #"Today's random meeting is between @.* and @.*"
                          (last @sent-to-slack))))))
 
