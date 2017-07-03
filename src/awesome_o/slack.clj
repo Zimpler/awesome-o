@@ -20,7 +20,7 @@
 (def ^:private pingify (partial str "@"))
 
 (defn- select-honeybadgers []
-  (let [honeybadgers (->> (state/draw-people-from-job "dev" :number 3)
+  (let [honeybadgers (->> (state/draw-people-from-job "dev" :number 1)
                           (map pingify)
                           (string/join ", "))]
     (say (str "Honeybadger Monday & Story Triage! ping: " honeybadgers) :channel "dev")))
