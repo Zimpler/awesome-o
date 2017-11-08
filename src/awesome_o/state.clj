@@ -99,7 +99,7 @@
 (defn get-persons-location [name]
   (get-person-key name :location))
 
-(def locations ["stockholm" "göteborg" "remote"])
+(def locations ["stockholm" "göteborg" "berlin" "remote"])
 
 (def jobs ["dev" "sales" "biz" "bizdev" "design"])
 
