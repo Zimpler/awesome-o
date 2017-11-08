@@ -26,8 +26,7 @@
 (def sent-to-slack (atom []))
 
 (defn does-mention-users [search-str names]
-  (every? true?(mapv (fn [name] (.contains search-str name))
-                     names)))
+  (every? (fn [name] (.contains search-str name)) names))
 
 (defn- rebind-post [f]
   (reset! sent-to-slack [])
