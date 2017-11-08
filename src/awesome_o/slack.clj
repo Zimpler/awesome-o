@@ -14,6 +14,7 @@
 (defn say [stuff & {:keys [channel username emoji]}]
   (http/post (channel->token (or channel "general"))
              {:text stuff
+              :link_names 1
               :username (or username "awesome-o")
               :icon_emoji (or emoji ":awesomeo:")}))
 
