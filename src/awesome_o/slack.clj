@@ -39,6 +39,7 @@
 (defn mention [user-name text]
   (let [text-response   (bot/reply user-name text)]
     {:text text-response
+     :link_names 1
      :username "awesome-o"
      :icon_emoji ":awesomeo:"}))
 
