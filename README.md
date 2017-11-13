@@ -34,6 +34,8 @@ Checking the details of a fellow Zimpler (@Albert in this case)
 
     bot: who is Albert?
 
+**Note:** If you want to play around with the bot, the best place to do so might in the #testing-bot channel. This will lower the likelihood of spamming other Slack users in regular channels.
+
 ## Development
 
 To run unit tests, start `redis-server` and then run `lein test`.
