@@ -12,6 +12,32 @@ This generated project has a few basics set up beyond the bare Compojure default
 
 ## Usage
 
+This is an example-based quick tour for Awesome-o. The bot is set up to work on all Slack channels in the Zimpler organisation, which means one can start an interaction by typing `bot: `.
+
+To see the commands available
+
+    bot: help
+
+This gives enough information to get started, but a few concrete examples follow for completeness' sake.
+
+Registering a new teammate as part of the onboarding process (@Maria in this case)
+
+    bot: Maria is a puggle
+    bot: Maria is in Göteborg
+    bot: Maria was born on 1980-01-01
+
+If applicable, add the person to the development team
+
+    bot: Maria is in the dev team
+
+Checking the details of a fellow Zimpler (@Albert in this case)
+
+    bot: who is Albert?
+
+**Note:** If you want to play around with the bot, the best place to do so might in the #testing-bot channel. This will lower the likelihood of spamming other Slack users in regular channels.
+
+## Development
+
 To run unit tests, start `redis-server` and then run `lein test`.
 You can also run `lein auto test` for ongoing unit testing every time
 you change a file. For interactive development start `lein repl`,
