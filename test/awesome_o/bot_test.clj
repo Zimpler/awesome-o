@@ -42,9 +42,11 @@
 (use-fixtures :each setup-redis rebind-post)
 
 (deftest random-meeting-test
-  (let [meeting slack/random-meeting]
-    (is (or (= "Today's random meeting is between @kristoffer and @jean-louis")
-            (= "Today's random meeting is between @jean-louis and @kristoffer")))))
+  (state/remove-person "magnus")
+  (state/remove-person "patrik")
+  (let [meeting (slack/random-meeting)]
+    (is (or (= meeting ["Today's random meeting is between @kristoffer and @jean-louis"])
+            (= meeting ["Today's random meeting is between @jean-louis and @kristoffer"])))))
 
 (deftest mention-test
   (with-redefs
