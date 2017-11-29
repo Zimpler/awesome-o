@@ -120,7 +120,7 @@
 
 (defn reply [user-name text]
   (let [persons (state/get-names)
-        locations state/locations
+        locations state/valid-locations
         jobs      state/jobs
         parse-result (parser/parse {:myself user-name
                                     :persons persons

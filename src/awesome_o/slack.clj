@@ -32,6 +32,15 @@
     (say (str "Today's random meeting is between " (pingify first-metee)
               " and " (pingify second-metee)))))
 
+(defn random-triple-meeting []
+  (let [[first-metee second-metee third-metee] (state/three-random-people-from-different-locations)]
+    (say (str "Today's random trio meeting is between "
+              (pingify first-metee)
+              ", "
+              (pingify second-metee)
+              " and "
+              (pingify third-metee)))))
+
 (defn announcement [user-name text]
   (say (str "new announcement from " user-name ":\n"
             text)))
@@ -52,4 +61,6 @@
       (select-honeybadgers))
     (when (or (time/monday-today?)
               (time/wednesday-today?)
-              (time/friday-today?)) (random-meeting))))
+              (time/friday-today?)) (random-meeting))
+    (when (or (time/tuesday-today?)
+              (time/thursday-today?)) (random-triple-meeting))))

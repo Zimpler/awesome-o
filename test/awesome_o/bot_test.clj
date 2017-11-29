@@ -48,6 +48,41 @@
     (is (or (= meeting ["Today's random meeting is between @kristoffer and @jean-louis"])
             (= meeting ["Today's random meeting is between @jean-louis and @kristoffer"])))))
 
+(deftest random-triple-meeting-test
+  (testing "A random meeting between three people from different locations"
+    (let [location-of-people {"magnus"     "göteborg"
+                              "jean-louis" "göteborg"
+                              "saskia"     "berlin"
+                              "joaquim"    "berlin"
+                              "jezen"      "remote"
+                              "raimo"      "remote"
+                              "johan"      "stockholm"
+                              "kristoffer" "stockholm"}]
+      (state/flushdb)
+      (state/reset-state)
+      (doseq [person (keys location-of-people)]
+        (state/add-person person)
+        (state/set-persons-location person (get location-of-people person)))
+      (let [meeting-participants (state/three-random-people-from-different-locations)
+            location-of-participants (map #(get location-of-people %) meeting-participants)]
+        (is (= 3 (count meeting-participants)))
+        (is (= location-of-participants (distinct location-of-participants))))))
+
+  (testing "Slack message for random trio meeting pings three people"
+    (let [location-of-people {"magnus"     "göteborg"
+                              "saskia"     "berlin"
+                              "jezen"      "remote"
+                              "johan"      "stockholm"}]
+      (state/flushdb)
+      (state/reset-state)
+      (doseq [person (keys location-of-people)]
+        (state/add-person person)
+        (state/set-persons-location person (get location-of-people person)))
+      (is (= 3 (->> (slack/random-triple-meeting)
+                    first
+                    (re-seq #"@")
+                    count))))))
+
 (deftest mention-test
   (with-redefs
     [time/monday-today? (constantly true)]

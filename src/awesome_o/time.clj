@@ -29,8 +29,14 @@
 (defn monday-today? []
   (monday? (today)))
 
+(defn tuesday-today? []
+  (tuesday? (today)))
+
 (defn wednesday-today? []
   (wednesday? (today)))
+
+(defn thursday-today? []
+  (thursday? (today)))
 
 (defn friday-today? []
   (friday? (today)))
