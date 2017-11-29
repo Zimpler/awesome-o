@@ -9,7 +9,16 @@
 (def test-user "jean-louis")
 (def today (time/format-date (time/today)))
 
-(defn- setup-redis [f]
+(defn- mock-redis [f]
+  (let [mock-state (atom {})]
+    (with-redefs
+      [state/flushdb      #(reset! mock-state {})
+       state/reset-state  #(reset! mock-state {:persons {}})
+       state/get-state     (fn [] @mock-state)
+       state/update-state #(swap! mock-state %)]
+      (f))))
+
+(defn- setup-test-state-data [f]
   (state/flushdb)
   (state/reset-state)
   (state/add-person "magnus")
@@ -39,7 +48,7 @@
 (defn- mention [text]
   (:text (slack/mention test-user (str "@awesome-o: " text))))
 
-(use-fixtures :each setup-redis rebind-post)
+(use-fixtures :each mock-redis setup-test-state-data rebind-post)
 
 (deftest random-meeting-test
   (state/remove-person "magnus")

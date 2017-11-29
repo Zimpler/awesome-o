@@ -4,6 +4,8 @@
             [taoensso.carmine.locks :as locks]
             [environ.core :refer [env]]))
 
+; All methods that use redis - make sure to properly mock them in bot-test:12
+
 (defn- redis-config []
   {:pool {}
    :spec {:uri (env :redistogo-url "redis://localhost:6379")}})
@@ -16,7 +18,6 @@
 (defn- ismember? [key value]
   (pos? (wcar* (car/sismember key value))))
 
-(declare away?)
 
 (defn reset-state []
   (wcar* (car/set "state"
@@ -25,12 +26,28 @@
 (defn- get-state []
   (wcar* (car/get "state")))
 
-(defn- get-in-state [ks]
-  (get-in (get-state) ks))
 
 (defn- update-state [fun]
   (let [state (get-state)]
     (wcar* (car/set "state" (fun state)))))
+
+
+(defn reset-daily-announcement []
+  (wcar* (car/set (str "daily-announcement-"
+                       (time/format-date (time/today)))
+                  nil)))
+
+(defn acquire-daily-announcement []
+  (not (wcar* (car/getset (str "daily-announcement-"
+                               (time/format-date (time/today)))
+                          true))))
+
+; 👇 Here be functions that don't directly use redis 👇
+
+(declare away?)
+
+(defn- get-in-state [ks]
+  (get-in (get-state) ks))
 
 (defn- update-in-state [ks f & args]
   (update-state (fn [state] (apply update-in state ks f args))))
@@ -165,13 +182,3 @@
        (remove away?)
        (into [])
        rand-nth))
-
-(defn reset-daily-announcement []
-  (wcar* (car/set (str "daily-announcement-"
-                       (time/format-date (time/today)))
-                  nil)))
-
-(defn acquire-daily-announcement []
-  (not (wcar* (car/getset (str "daily-announcement-"
-                               (time/format-date (time/today)))
-                          true))))
