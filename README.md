@@ -70,10 +70,22 @@ has a detailed explanation, but using the `repl` task from Leiningen
 step is setting up credentials:
 
     $ heroku config:add REPL_USER=[...] REPL_PASSWORD=[...]
+    
+Find out name of running dyno
+
+    $ heroku ps
+    
+Restart dyno to load changes
+    
+    $ heroku ps:restart DYNO_NAME
+    
+Find web URL
+
+    $ heroku apps:info
 
 Then you can launch the REPL:
 
-    $ lein repl :connect http://$REPL_USER:$REPL_PASSWORD@awesome-o.herokuapp.com/repl
+    $ lein repl :connect https://$REPL_USER:$REPL_PASSWORD@puggle-awesome-o.herokuapp.com/repl
 
 Everything you enter will be evaluated remotely in the running dyno,
 which can be very useful for debugging or inspecting live data.
