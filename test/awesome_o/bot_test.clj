@@ -57,6 +57,29 @@
     (is (or (= meeting ["Today's random meeting is between @kristoffer and @jean-louis"])
             (= meeting ["Today's random meeting is between @jean-louis and @kristoffer"])))))
 
+(deftest test-add-person-to-state-fn
+  (testing "resilience to people not having a defined position"
+    (let [state {:persons {"albert"  {:birthday "1993-10-22"
+                                      :location "stockholm"
+                                      :team     nil
+                                      :away     []
+                                      :position 1}
+                           "bertha"  {:birthday "1987-03-13"
+                                      :location "berlin"
+                                      :team     "dev"
+                                      :away     []
+                                      ;; position key should always be present
+                                      }}}
+          add-to-state (state/add-person-to-state-fn "catherine")]
+      (is (= {:birthday nil
+              :location nil
+              :team nil
+              :away []
+              :position 2}
+             (-> (add-to-state state)
+                 :persons
+                 (get "catherine")))))))
+
 (deftest random-triple-meeting-test
   (testing "A random meeting between three people from different locations"
     (let [location-of-people {"magnus"     "göteborg"

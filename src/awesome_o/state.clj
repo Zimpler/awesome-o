@@ -52,18 +52,30 @@
 (defn- update-in-state [ks f & args]
   (update-state (fn [state] (apply update-in state ks f args))))
 
+(defn add-person-to-state-fn
+  "Returns a function to add the person with the given name to the state map.
+
+  The returned function has the name of the person to add locally bound, so
+  it only receives the state map. It returns the unchanged state map if a
+  person with the same name already exists, and the new state otherwise."
+  [name]
+  (fn [state]
+    (let [last-position (->> state
+                             :persons
+                             vals
+                             (map #(get % :position 0))
+                             (apply max 0))]
+      (if (get-in state [:persons name])
+        state
+        (assoc-in state [:persons name]
+                  {:birthday nil
+                   :location nil
+                   :team     nil
+                   :away     []
+                   :position (inc last-position)})))))
+
 (defn add-person [name]
-  (update-state
-   (fn [state]
-     (let [last-position (->> state :persons vals (map :position) (apply max 0))]
-       (if (get-in state [:persons name])
-         state
-         (assoc-in state [:persons name]
-                   {:birthday nil
-                    :location nil
-                    :team nil
-                    :away []
-                    :position (inc last-position)}))))))
+  (update-state (add-person-to-state-fn name)))
 
 (defn- set-person-key [name key value]
   (do (add-person name)
