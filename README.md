@@ -49,7 +49,7 @@ launch from the command line:
 
     $ lein run -m awesome-o.web
 
-You'll need the [heroku toolbelt](https://toolbelt.herokuapp.com)
+You'll need the [heroku cli tool](https://devcenter.heroku.com/articles/heroku-cli)
 installed to deploy awesome-o, aswell as either a heroku account of your own, or
 an SSH-key uploaded to the pugglepay account (under the address
 accounts@pugglepay.net)
@@ -69,19 +69,11 @@ has a detailed explanation, but using the `repl` task from Leiningen
 2.x lets you connect a REPL to a remote process over HTTP. The first
 step is setting up credentials:
 
-    $ heroku config:add REPL_USER=[...] REPL_PASSWORD=[...]
-    
-Find out name of running dyno
-
-    $ heroku ps
-    
-Restart dyno to load changes
-    
-    $ heroku ps:restart DYNO_NAME
+    $ heroku config:add -a puggle-awesome-o REPL_USER=[...] REPL_PASSWORD=[...]
     
 Find web URL
 
-    $ heroku apps:info
+    $ heroku apps:info -a puggle-awesome-o
 
 Then you can launch the REPL:
 
