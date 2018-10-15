@@ -20,12 +20,6 @@
 
 (def ^:private pingify (partial str "@"))
 
-(defn- select-honeybadgers []
-  (let [honeybadgers (->> (state/draw-people-from-job "dev" :number 1)
-                          (map pingify)
-                          (string/join ", "))]
-    (say (str "Honeybadger Monday & Story Triage! ping: " honeybadgers) :channel "dev")))
-
 (defn random-meeting []
   (let [first-metee (state/random-person)
         second-metee (state/random-person-from-other-location first-metee)]
@@ -57,8 +51,6 @@
              (state/acquire-daily-announcement))
     (doseq [person (state/persons-born-today)]
       (say (format "Today is @%s's birthday! Happy birthday!" person)))
-    (when (time/monday-today?)
-      (select-honeybadgers))
     (when (or (time/monday-today?)
               (time/wednesday-today?)
               (time/friday-today?)) (random-meeting))
