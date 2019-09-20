@@ -6,17 +6,12 @@
             [clojure.string :as string]
             [environ.core :refer [env]]))
 
-(defn- channel->token [channel]
-  (case channel
-    "general" (env :slack-general-token "")
-    "dev" (env :slack-dev-token "")))
-
-(defn say [stuff & {:keys [channel username emoji]}]
-  (http/post (channel->token (or channel "general"))
+(defn say [stuff]
+  (http/post (env :slack-general-token "")
              {:text stuff
               :link_names 1
-              :username (or username "awesome-o")
-              :icon_emoji (or emoji ":awesomeo:")}))
+              :username "awesome-o"
+              :icon_emoji ":awesomeo:"}))
 
 (def ^:private pingify (partial str "@"))
 

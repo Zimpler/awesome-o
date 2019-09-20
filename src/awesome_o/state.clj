@@ -8,7 +8,7 @@
 
 (defn- redis-config []
   {:pool {}
-   :spec {:uri (env :redistogo-url "redis://localhost:6379")}})
+   :spec {:uri (env :redis-url "redis://localhost:6379")}})
 
 (defmacro ^:private wcar* [& body] `(car/wcar (redis-config) ~@body))
 
@@ -23,7 +23,7 @@
   (wcar* (car/set "state"
                   {:persons {}})))
 
-(defn- get-state []
+(defn get-state []
   (wcar* (car/get "state")))
 
 
@@ -115,7 +115,7 @@
 (defn get-persons-location [name]
   (get-person-key name :location))
 
-(def valid-locations ["stockholm" "göteborg" "berlin" "remote"])
+(def valid-locations ["stockholm" "göteborg" "malta" "remote"])
 
 (def jobs ["dev" "sales" "biz" "bizdev" "design"])
 
