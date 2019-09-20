@@ -1,71 +1,53 @@
 (ns awesome-o.web
-  (:require [compojure.core :refer [defroutes GET PUT POST DELETE ANY]]
-            [compojure.handler :refer [site]]
-            [compojure.route :as route]
+  (:require [cheshire.core :as json]
             [clojure.java.io :as io]
-            [ring.middleware.stacktrace :as trace]
-            [ring.middleware.session :as session]
-            [ring.middleware.session.cookie :as cookie]
-            [ring.adapter.jetty :as jetty]
-            [ring.middleware.basic-authentication :as basic]
-            [cemerick.drawbridge :as drawbridge]
-            [environ.core :refer [env]]
-            [clojure.pprint :refer [pprint]]
-            [cheshire.core :as json]
-            [awesome-o.slack :as slack]))
+            [awesome-o.slack :as slack]
+            [uswitch.lambada.core :refer [deflambdafn]]
+            [ring.util.codec :refer [form-decode]]
+            [awesome-o.state :as state]
+            [environ.core :refer [env]]))
 
-(defn- authenticated? [user pass]
-  ;; TODO: heroku config:add REPL_USER=[...] REPL_PASSWORD=[...]
-  (= [user pass] [(env :repl-user false) (env :repl-password false)]))
+(defn decode-body [event]
+  (form-decode (get event "body")))
 
-(def ^:private drawbridge
-  (-> (drawbridge/ring-handler)
-      (session/wrap-session)
-      (basic/wrap-basic-authentication authenticated?)))
+(defn handle-announcements
+  [event]
+  (let [body (decode-body event)]
+    (slack/announcement (get body "user_name")
+                        (get body "text")))
+  {:statusCode 200 :body ""})
 
-(defn- mention-handler
-  [user-name text]
-  (let [slack-response (slack/mention user-name text)]
-    {:status 200
+(deflambdafn awesomeo.announcements
+  [in out ctx]
+  (let [event (json/parse-stream (io/reader in))
+        res (handle-announcements event)]
+    (with-open [w (io/writer out)]
+      (json/generate-stream res w))))
+
+(defn handle-mention
+  [event]
+  (let [body (decode-body event)
+        slack-response (slack/mention (get body "user_name")
+                                      (get body "text"))]
+    {:statusCode 200
      :headers {"Content-Type" "application/json; charset=utf-8"}
      :body (json/generate-string slack-response)}))
 
-(defroutes app
-  (ANY "/repl" {:as req}
-    (drawbridge req))
-  (GET "/" []
-    (slack/ping)
-    {:status 200
-     :headers {"Content-Type" "text/plain"}
-     :body (pr-str ["Hello" :from 'Puggle])})
-  (POST "/slack-announcement" {{:keys [text user_name]} :params}
-    (slack/announcement user_name text)
-    {:status 200 :body ""})
-  (POST "/mention" {{:keys [text user_name]} :params}
-    (mention-handler user_name text))
-  (ANY "*" []
-    (route/not-found (slurp (io/resource "404.html")))))
+(deflambdafn awesomeo.mention
+  [in out ctx]
+  (let [event (json/parse-stream (io/reader in))
+        res (handle-mention event)]
+    (with-open [w (io/writer out)]
+      (json/generate-stream res w))))
 
-(defn wrap-error-page [handler]
-  (fn [req]
-    (try (handler req)
-         (catch Exception e
-           {:status 500
-            :headers {"Content-Type" "text/html"}
-            :body (slurp (io/resource "500.html"))}))))
+(defn handle-scheduled
+  [event]
+  (slack/ping)
+  {:statusCode 200 :body ""})
 
-(defn wrap-app [app]
-  ;; TODO: heroku config:add SESSION_SECRET=$RANDOM_16_CHARS
-  (let [store (cookie/cookie-store {:key (env :session-secret)})]
-    (-> app
-        trace/wrap-stacktrace
-        (site {:session {:store store}}))))
-
-(defn -main [& [port]]
-  (let [port (Integer. (or port (env :port) 5000))]
-    (jetty/run-jetty (wrap-app #'app) {:port port :join? false})))
-
-;; For interactive development:
-(comment
-  (.stop server)
-  (def server (-main)))
+(deflambdafn awesomeo.scheduled
+  [in out ctx]
+  (let [event (json/parse-stream (io/reader in))
+        res (handle-scheduled event)]
+    (with-open [w (io/writer out)]
+      (json/generate-stream res w))))
