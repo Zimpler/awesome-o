@@ -1,14 +1,14 @@
 # awesome-o
 [![Build Status](https://travis-ci.org/PugglePay/awesome-o.svg)](https://travis-ci.org/PugglePay/awesome-o)
 
-A [Heroku](http://www.heroku.com) web app using Compojure.
+Running on lambdas and API gateway
 
-This generated project has a few basics set up beyond the bare Compojure defaults:
+## Deploy
 
-* Cookie-backed session store
-* Stack traces when in development
-* Environment-based config via [environ](https://github.com/weavejester/environ)
-* [HTTP-based REPL debugging](https://devcenter.heroku.com/articles/debugging-clojure) via [drawbridge](https://github.com/cemerick/drawbridge)
+```
+make deploy
+```
+
 
 ## Usage
 
@@ -61,26 +61,6 @@ https://devcenter.heroku.com/articles/git
 The cookie-backed session store needs a session secret configured for encryption:
 
     $ heroku config:add SESSION_SECRET=$RANDOM_16_CHARS
-
-## Remote REPL
-
-The [devcenter article](https://devcenter.heroku.com/articles/debugging-clojure)
-has a detailed explanation, but using the `repl` task from Leiningen
-2.x lets you connect a REPL to a remote process over HTTP. The first
-step is setting up credentials:
-
-    $ heroku config:add -a puggle-awesome-o REPL_USER=[...] REPL_PASSWORD=[...]
-    
-Find web URL
-
-    $ heroku apps:info -a puggle-awesome-o
-
-Then you can launch the REPL:
-
-    $ lein repl :connect https://$REPL_USER:$REPL_PASSWORD@puggle-awesome-o.herokuapp.com/repl
-
-Everything you enter will be evaluated remotely in the running dyno,
-which can be very useful for debugging or inspecting live data.
 
 ## License
 
