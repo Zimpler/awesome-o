@@ -46,8 +46,8 @@
              (state/acquire-daily-announcement))
     (doseq [person (state/persons-born-today)]
       (say (format "Today is @%s's birthday! Happy birthday!" person)))
-    (when (or (time/monday-today?)
-              (time/wednesday-today?)
-              (time/friday-today?)) (random-meeting))
-    (when (or (time/tuesday-today?)
-              (time/thursday-today?)) (random-triple-meeting))))
+    #_(when (or (time/monday-today?)
+                (time/wednesday-today?)
+                (time/friday-today?)) (random-meeting))
+    #_(when (or (time/tuesday-today?)
+                (time/thursday-today?)) (random-triple-meeting))))
