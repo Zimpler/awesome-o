@@ -13,8 +13,9 @@
 (defn handle-announcements
   [event]
   (let [body (decode-body event)]
-    (slack/announcement (get body "user_name")
+    (slack/announcement (str "<@" (get body "user_id") ">")
                         (get body "text")))
+  (println body)
   {:statusCode 200 :body ""})
 
 (deflambdafn awesomeo.announcements
@@ -27,8 +28,9 @@
 (defn handle-mention
   [event]
   (let [body (decode-body event)
-        slack-response (slack/mention (get body "user_name")
+        slack-response (slack/mention (str "<@" (get body "user_id") ">")
                                       (get body "text"))]
+    (println body)
     {:statusCode 200
      :headers {"Content-Type" "application/json; charset=utf-8"}
      :body (json/generate-string slack-response)}))

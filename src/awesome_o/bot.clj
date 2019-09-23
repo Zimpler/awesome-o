@@ -33,10 +33,10 @@
                 " - generate an Adam Sandler movie idea"]))
 
 (defmethod react :declare-person
-  [[_ {:keys [word person]}]]
-  (let [name (or word person)]
+  [[_ {:keys [new-person person]}]]
+  (let [name (or new-person person)]
     (state/add-person name)
-    (str "OK, nice to meet you @" name "!")))
+    (str "OK, nice to meet you " name "!")))
 
 (defmethod react :forget-person
   [[_ {:keys [person]}]]
@@ -131,7 +131,7 @@
      (parser/success? parse-result) (react parse-result)
      (movie/adam-sandler? text) (movie/generate-movie)
      (meaning-of-life? text) "forty-two"
-     (thanks? text) (str "you're welcome, @" user-name)
+     (thanks? text) (str "you're welcome, " user-name)
      :else (str user-name ": does not compute:\n"
                 "```\n"
                 (parser/failure->string parse-result)

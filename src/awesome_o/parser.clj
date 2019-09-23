@@ -23,7 +23,7 @@
 
      help = <'help'>
 
-     declare-person = (myself / word) <to-be> <' a '>
+     declare-person = (myself / new-person) <to-be> <' a '>
                       (<'person'> | <'puggle'>)
 
      forget-person = <'forget about '> person
@@ -76,7 +76,7 @@
                'on' <' '> date | 'until' <' '> date |
                'from' <' '> date <' '> 'to' <' '> date
 
-     word = #'[^\\s]+'
+     new-person = #'<@[^\\s]+>'
      location = " (->string-list locations) "
 ") :string-ci true))
 
@@ -130,8 +130,7 @@
 
 (defn- cleanup [text]
   (-> text
-      string/lower-case
-      (string/replace #"[,.!?:@]" " ")
+      (string/replace #"[,.!?:]" " ")
       (string/replace "’" "'")
       (string/replace #"[\s]+" " ")
       string/trim))

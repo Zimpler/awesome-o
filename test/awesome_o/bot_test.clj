@@ -6,7 +6,8 @@
    [awesome-o.state :as state]
    [awesome-o.time :as time]))
 
-(def test-user "jean-louis")
+(def test-user "<@test-user>")
+
 (def today (time/format-date (time/today)))
 
 (defn- mock-redis [f]
@@ -21,15 +22,15 @@
 (defn- setup-test-state-data [f]
   (state/flushdb)
   (state/reset-state)
-  (state/add-person "magnus")
+  (state/add-person "<@user1>")
   (state/add-person test-user)
-  (state/add-person "patrik")
-  (state/set-birthday "patrik" today)
-  (state/set-persons-job "patrik" "dev")
+  (state/add-person "<@user2>")
+  (state/set-birthday "<@user2>" today)
+  (state/set-persons-job "<@user2>" "dev")
   (state/set-persons-job test-user "dev")
-  (state/add-person "kristoffer")
+  (state/add-person "<@user3>")
   (state/set-persons-location test-user "göteborg")
-  (state/set-persons-location "kristoffer" "stockholm")
+  (state/set-persons-location "<@user3>" "stockholm")
   (f))
 
 (def sent-to-slack (atom []))
@@ -46,27 +47,27 @@
     (f)))
 
 (defn- mention [text]
-  (:text (slack/mention test-user (str "@awesome-o: " text))))
+  (:text (slack/mention test-user (str "bot: " text))))
 
 (use-fixtures :each mock-redis setup-test-state-data rebind-post)
 
 (deftest random-meeting-test
-  (state/remove-person "magnus")
-  (state/remove-person "patrik")
+  (state/remove-person "<@user1>")
+  (state/remove-person "<@user2>")
   (let [meeting (slack/random-meeting)]
-    (is (or (= meeting ["Today's random meeting is between @kristoffer and @jean-louis"])
-            (= meeting ["Today's random meeting is between @jean-louis and @kristoffer"])))))
+    (is (or (= meeting ["Today's random meeting is between <@user3> and <@test-user>"])
+            (= meeting ["Today's random meeting is between <@test-user> and <@user3>"])))))
 
 (deftest random-triple-meeting-test
   (testing "A random meeting between three people from different locations"
-    (let [location-of-people {"magnus"     "göteborg"
-                              "jean-louis" "göteborg"
-                              "saskia"     "berlin"
-                              "joaquim"    "berlin"
-                              "jezen"      "remote"
-                              "raimo"      "remote"
-                              "johan"      "stockholm"
-                              "kristoffer" "stockholm"}]
+    (let [location-of-people {"<@user1>"     "göteborg"
+                              "<@test-user>" "göteborg"
+                              "<@user4>"     "berlin"
+                              "<@user5>"     "berlin"
+                              "<@user6>"     "remote"
+                              "<@user7>"     "remote"
+                              "<@user8>"     "stockholm"
+                              "<@user3>"     "stockholm"}]
       (state/flushdb)
       (state/reset-state)
       (doseq [person (keys location-of-people)]
@@ -78,10 +79,10 @@
         (is (= location-of-participants (distinct location-of-participants))))))
 
   (testing "Slack message for random trio meeting pings three people"
-    (let [location-of-people {"magnus"     "göteborg"
-                              "saskia"     "berlin"
-                              "jezen"      "remote"
-                              "johan"      "stockholm"}]
+    (let [location-of-people {"<@user1>" "göteborg"
+                              "<@user4>" "berlin"
+                              "<@user6>" "remote"
+                              "<@user8>" "stockholm"}]
       (state/flushdb)
       (state/reset-state)
       (doseq [person (keys location-of-people)]
@@ -95,88 +96,88 @@
 (deftest mention-test
   (with-redefs
     [time/monday-today? (constantly true)]
-    (is (= (mention "anders is a puggle")
-           "OK, nice to meet you @anders!"))
+    (is (= (mention "<@user10> is a puggle")
+           "OK, nice to meet you <@user10>!"))
 
     (is (= (mention "who is part of the dev team?")
-           "The dev team: jean-louis, patrik"))
+           "The dev team: <@test-user>, <@user2>"))
 
-    (is (= (mention "who is anders?")
-           "anders is a puggle"))
+    (is (= (mention "who is <@user10>?")
+           "<@user10> is a puggle"))
 
-    (is (= (mention "anders is in the dev team")
-           "OK, now I know anders is part of the dev team"))
+    (is (= (mention "<@user10> is in the dev team")
+           "OK, now I know <@user10> is part of the dev team"))
 
     (is (= (mention "who is part of the dev team?")
-           "The dev team: jean-louis, patrik, anders"))
+           "The dev team: <@test-user>, <@user2>, <@user10>"))
 
-    (is (= (mention "who is anders?")
-           "anders is a puggle part of the dev team"))
+    (is (= (mention "who is <@user10>?")
+           "<@user10> is a puggle part of the dev team"))
 
-    (is (= (mention "anders is in göteborg")
-           "OK, now I know that anders is in göteborg"))
+    (is (= (mention "<@user10> is in göteborg")
+           "OK, now I know that <@user10> is in göteborg"))
 
-    (is (= (mention "who is anders?")
-           "anders is a puggle part of the dev team located at the göteborg office"))
+    (is (= (mention "who is <@user10>?")
+           "<@user10> is a puggle part of the dev team located at the göteborg office"))
 
-    (is (= (mention "anders is born on 1980-01-01")
-           "OK, now I know anders is born on 1980-01-01"))
+    (is (= (mention "<@user10> is born on 1980-01-01")
+           "OK, now I know <@user10> is born on 1980-01-01"))
 
-    (is (= (mention "patrik was born on 1987-10-09")
-           "OK, now I know patrik is born on 1987-10-09"))
+    (is (= (mention "<@user2> was born on 1987-10-09")
+           "OK, now I know <@user2> is born on 1987-10-09"))
 
     (is (= (mention "I was born on 1987-10-09")
-           "OK, now I know jean-louis is born on 1987-10-09"))
+           "OK, now I know <@test-user> is born on 1987-10-09"))
 
-    (is (= (mention "when is anders's birthday?")
-           "anders was born on 1980-01-01"))
+    (is (= (mention "when is <@user10>'s birthday?")
+           "<@user10> was born on 1980-01-01"))
 
     (is (= (mention "I'm away today")
-           (str "OK, now I know jean-louis will be away from " today " to " today)))
+           (str "OK, now I know <@test-user> will be away from " today " to " today)))
 
-    (is (= (mention "patrik is away today")
-           (str "OK, now I know patrik will be away from " today " to " today)))
+    (is (= (mention "<@user2> is away today")
+           (str "OK, now I know <@user2> will be away from " today " to " today)))
 
-    (is (= (mention "anders is away today")
-           (str "OK, now I know anders will be away from " today " to " today)))
+    (is (= (mention "<@user10> is away today")
+           (str "OK, now I know <@user10> will be away from " today " to " today)))
 
     (is (= @sent-to-slack []))
 
     (is (= (mention "clear my schedule")
-           "OK, I've cleared jean-louis's schedule"))
+           "OK, I've cleared <@test-user>'s schedule"))
 
-    (is (= (mention "clear anders's schedule")
-           "OK, I've cleared anders's schedule"))
+    (is (= (mention "clear <@user10>'s schedule")
+           "OK, I've cleared <@user10>'s schedule"))
 
     (is (= (mention "what is the meaning of life?")
            "forty-two"))
 
-    (is (= (mention "lisa is a puggle")
-           "OK, nice to meet you @lisa!"))
+    (is (= (mention "<@user9> is a puggle")
+           "OK, nice to meet you <@user9>!"))
 
-    (is (= (mention "lisa is in the design team")
-           "OK, now I know lisa is part of the design team"))
+    (is (= (mention "<@user9> is in the design team")
+           "OK, now I know <@user9> is part of the design team"))
 
-    (is (= (mention "who is lisa?")
-           "lisa is a puggle part of the design team"))
+    (is (= (mention "who is <@user9>?")
+           "<@user9> is a puggle part of the design team"))
 
-    (is (= (mention "johan is a puggle")
-           "OK, nice to meet you @johan!"))
+    (is (= (mention "<@user8> is a puggle")
+           "OK, nice to meet you <@user8>!"))
 
-    (is (= (mention "johan is in the sales team")
-           "OK, now I know johan is part of the sales team"))
+    (is (= (mention "<@user8> is in the sales team")
+           "OK, now I know <@user8> is part of the sales team"))
 
     (is (= (mention "who is part of the sales team?")
-           "The sales team: johan"))
+           "The sales team: <@user8>"))
 
-    (is (= (mention "who is johan?")
-           "johan is a puggle part of the sales team"))
+    (is (= (mention "who is <@user8>?")
+           "<@user8> is a puggle part of the sales team"))
 
-    (is (= (mention "forget about anders")
-           "OK, I've forgotten everything about anders"))
+    (is (= (mention "forget about <@user10>")
+           "OK, I've forgotten everything about <@user10>"))
 
     (is (= (mention "who is part of the dev team?")
-           "The dev team: jean-louis, patrik"))))
+           "The dev team: <@test-user>, <@user2>"))))
 
 (deftest ping-test-non-working
   (testing "non-working hours - does nothing"
@@ -195,7 +196,7 @@
        state/acquire-daily-announcement (constantly true)]
       (slack/ping))
     (is (and (= (first @sent-to-slack)
-                "Today is @patrik's birthday! Happy birthday!")
+                "Today is <@user2>'s birthday! Happy birthday!")
              #_(re-matches #"Today's random meeting is between @.* and @.*"
                            (last @sent-to-slack))))))
 
@@ -209,7 +210,7 @@
        state/acquire-daily-announcement (constantly true)]
       (slack/ping))
     (is (= @sent-to-slack
-           ["Today is @patrik's birthday! Happy birthday!"]))))
+           ["Today is <@user2>'s birthday! Happy birthday!"]))))
 
 (deftest ping-test-wednesday
   (testing "wednesday - does random meeting and daily announcements"
@@ -221,18 +222,18 @@
        state/acquire-daily-announcement (constantly true)]
       (slack/ping))
     (is (and (= (first @sent-to-slack)
-                "Today is @patrik's birthday! Happy birthday!")
+                "Today is <@user2>'s birthday! Happy birthday!")
              #_(re-matches #"Today's random meeting is between @.* and @.*"
                            (last @sent-to-slack))))))
 
 (deftest ping-test-friday
   (testing "friday - does random meeting and daily announcements"
     (state/remove-person test-user)
-    (state/remove-person "kristoffer")
-    (state/remove-person "magnus")
-    (state/add-person "jgt")
-    (state/set-persons-location "jgt" "remote")
-    (state/set-persons-location "patrik" "remote")
+    (state/remove-person "<@user3>")
+    (state/remove-person "<@user1>")
+    (state/add-person "<@user11>")
+    (state/set-persons-location "<@user11>" "remote")
+    (state/set-persons-location "<@user2>" "remote")
     (with-redefs
       [time/working-hour? (constantly true)
        time/monday-today? (constantly false)
@@ -241,68 +242,68 @@
        state/acquire-daily-announcement (constantly true)]
       (slack/ping))
     (is (and (= (first @sent-to-slack)
-                "Today is @patrik's birthday! Happy birthday!")
+                "Today is <@user2>'s birthday! Happy birthday!")
              #_(does-mention-users (last @sent-to-slack)
-                                   ["jgt" "patrik"])))))
+                                   ["<@user11>" "<@user2>"])))))
 
 (deftest schedule-test
-  (is (= (mention "what is jean-louis schedule?")
-         "I do not have a schedule for jean-louis"))
-  (is (not (state/away? "jean-louis")))
+  (is (= (mention "what is <@test-user> schedule?")
+         "I do not have a schedule for <@test-user>"))
+  (is (not (state/away? "<@test-user>")))
 
-  (is (= (mention "jean-louis is away today")
-         (str "OK, now I know jean-louis will be away from "
+  (is (= (mention "<@test-user> is away today")
+         (str "OK, now I know <@test-user> will be away from "
               (time/today) " to "
               (time/today))))
 
-  (is (= (mention "what is jean-louis schedule?")
-         (str "jean-louis will be away on " (time/today))))
-  (is (state/away? "jean-louis"))
-  (is (= (mention "clear jean-louis schedule"))
-      "OK, I've cleared jean-louis's schedule")
+  (is (= (mention "what is <@test-user> schedule?")
+         (str "<@test-user> will be away on " (time/today))))
+  (is (state/away? "<@test-user>"))
+  (is (= (mention "clear <@test-user> schedule")
+         "OK, I've cleared <@test-user>'s schedule"))
 
-  (is (= (mention "jean-louis is away tomorrow")
-         (str "OK, now I know jean-louis will be away from "
+  (is (= (mention "<@test-user> is away tomorrow")
+         (str "OK, now I know <@test-user> will be away from "
               (time/tomorrow) " to "
               (time/tomorrow))))
 
-  (is (= (mention "what is jean-louis schedule?")
-         (str "jean-louis will be away on " (time/tomorrow))))
-  (is (not (state/away? "jean-louis")))
+  (is (= (mention "what is <@test-user> schedule?")
+         (str "<@test-user> will be away on " (time/tomorrow))))
+  (is (not (state/away? "<@test-user>")))
 
-  (is (= (mention (str "jean-louis is away until " (time/n-days-from-today 3)))
-         (str "OK, now I know jean-louis will be away from "
+  (is (= (mention (str "<@test-user> is away until " (time/n-days-from-today 3)))
+         (str "OK, now I know <@test-user> will be away from "
               (time/today) " to "
               (time/n-days-from-today 2))))
 
-  (is (= (mention "what is jean-louis schedule?")
-         (str "jean-louis will be away"
+  (is (= (mention "what is <@test-user> schedule?")
+         (str "<@test-user> will be away"
               " on " (time/tomorrow)
               ", from " (time/today) " to " (time/n-days-from-today 2))))
-  (is (state/away? "jean-louis"))
-  (is (= (mention "clear jean-louis schedule"))
-      "OK, I've cleared jean-louis's schedule")
+  (is (state/away? "<@test-user>"))
+  (is (= (mention "clear <@test-user> schedule")
+         "OK, I've cleared <@test-user>'s schedule"))
 
-  (is (= (mention (str "jean-louis will be away from "
+  (is (= (mention (str "<@test-user> will be away from "
                        (time/n-days-ago-today 3) " to "
                        (time/n-days-ago-today 1)))
-         (str "OK, now I know jean-louis will be away from "
+         (str "OK, now I know <@test-user> will be away from "
               (time/n-days-ago-today 3) " to "
               (time/n-days-ago-today 1))))
 
-  (is (= (mention "what is jean-louis schedule?")
-         "I do not have a schedule for jean-louis"))
-  (is (not (state/away? "jean-louis")))
+  (is (= (mention "what is <@test-user> schedule?")
+         "I do not have a schedule for <@test-user>"))
+  (is (not (state/away? "<@test-user>")))
 
-  (is (= (mention (str "jean-louis will be away from "
+  (is (= (mention (str "<@test-user> will be away from "
                        (time/n-days-from-today 2) " to "
                        (time/n-days-from-today 5)))
-         (str "OK, now I know jean-louis will be away from "
+         (str "OK, now I know <@test-user> will be away from "
               (time/n-days-from-today 2) " to "
               (time/n-days-from-today 5))))
 
-  (is (= (mention "what is jean-louis schedule?")
-         (str "jean-louis will be away from "
+  (is (= (mention "what is <@test-user> schedule?")
+         (str "<@test-user> will be away from "
               (time/n-days-from-today 2) " to "
               (time/n-days-from-today 5))))
-  (is (not (state/away? "jean-louis"))))
+  (is (not (state/away? "<@test-user>"))))
