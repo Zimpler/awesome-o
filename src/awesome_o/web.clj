@@ -14,8 +14,8 @@
   [event]
   (let [body (decode-body event)]
     (slack/announcement (str "<@" (get body "user_id") ">")
-                        (get body "text")))
-  (println body)
+                        (get body "text"))
+    (println body))
   {:statusCode 200 :body ""})
 
 (deflambdafn awesomeo.announcements
