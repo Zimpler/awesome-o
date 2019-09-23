@@ -194,8 +194,8 @@
        time/friday-today? (constantly false)
        state/acquire-daily-announcement (constantly true)]
       (slack/ping))
-    (is (and (= (drop-last @sent-to-slack)
-                ["Today is @patrik's birthday! Happy birthday!"])
+    (is (and (= (first @sent-to-slack)
+                "Today is @patrik's birthday! Happy birthday!")
              #_(re-matches #"Today's random meeting is between @.* and @.*"
                            (last @sent-to-slack))))))
 
