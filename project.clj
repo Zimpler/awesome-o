@@ -5,7 +5,7 @@
             :url "http://example.com/FIXME"}
   :dependencies [[org.clojure/clojure "1.9.0"]
                  [environ "1.0.0"]
-                 [http-kit "2.3.0"]
+                 [http-kit "2.4.0-alpha6"]
                  [cheshire "5.8.1"]
                  [instaparse "1.4.1"]
                  [com.taoensso/carmine "2.11.1"]
